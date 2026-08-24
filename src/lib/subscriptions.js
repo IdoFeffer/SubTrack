@@ -77,3 +77,51 @@ export const SORT_LABELS = {
 };
 
 export const SORT_CYCLE = ["date", "price", "name"];
+
+export const WEEKDAY_LABELS = ["א", "ב", "ג", "ד", "ה", "ו", "ש"];
+
+export function monthLabel(year, monthIndex) {
+  return new Date(year, monthIndex, 1).toLocaleDateString("he-IL", { month: "long", year: "numeric" });
+}
+
+export function buildCalendar(year, monthIndex, subs) {
+  const daysInMonth = new Date(year, monthIndex + 1, 0).getDate();
+  const firstWeekday = new Date(year, monthIndex, 1).getDay();
+  const cells = [];
+
+  for (let i = 0; i < firstWeekday; i++) {
+    cells.push({
+      key: `blank-${i}`,
+      day: "",
+      bg: "#faf8ff",
+      border: "#f4f0fb",
+      dayColor: "#cfc6e4",
+      chip: null,
+    });
+  }
+
+  for (let d = 1; d <= daysInMonth; d++) {
+    const iso = `${year}-${String(monthIndex + 1).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
+    const hit = subs.find((s) => s.nextRenewal === iso);
+    const cat = hit ? categoryColor(hit.category) : null;
+    cells.push({
+      key: `day-${d}`,
+      day: d,
+      bg: hit ? cat.tint : "#fff",
+      border: hit ? `${cat.color}33` : "#f4f0fb",
+      dayColor: hit ? cat.color : "#8b7cae",
+      chip: hit ? { name: `${hit.icon} ${hit.name}`, color: cat.color } : null,
+    });
+  }
+
+  return cells;
+}
+
+export function lastNMonths(n, referenceDate = new Date()) {
+  const months = [];
+  for (let i = n - 1; i >= 0; i--) {
+    const d = new Date(referenceDate.getFullYear(), referenceDate.getMonth() - i, 1);
+    months.push({ year: d.getFullYear(), monthIndex: d.getMonth(), isCurrent: i === 0 });
+  }
+  return months;
+}
