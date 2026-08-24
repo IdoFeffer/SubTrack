@@ -8,6 +8,7 @@ export default function SubscriptionModal({
   form,
   setForm,
   errors,
+  saveError,
   onClose,
   onSave,
   triggerRef,
@@ -85,6 +86,7 @@ export default function SubscriptionModal({
         </div>
         <div className="p-6 flex flex-col gap-4 max-h-[75vh] overflow-y-auto">
           <FormFields form={form} setForm={setForm} errors={errors} />
+          {saveError && <p className="m-0 text-sm font-medium text-[#e11d48]">{saveError}</p>}
           <div className="flex gap-2.5 mt-1">
             <button
               onClick={onSave}

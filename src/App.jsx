@@ -5,10 +5,15 @@ import SubscriptionsPage from "./pages/SubscriptionsPage";
 import RenewalsPage from "./pages/RenewalsPage";
 import ExpensesPage from "./pages/ExpensesPage";
 import SettingsPage from "./pages/SettingsPage";
-import { SEED_SUBSCRIPTIONS, EMPTY_FORM, SORT_CYCLE, SORT_LABELS, daysUntil, sortSubs } from "./lib/subscriptions";
-
-// TODO (Claude Code): connect to a real backend (Node/Express + Turso) instead of this local state.
-// Suggested table schema: subscriptions(id, name, price, next_renewal_date, category, user_id)
+import { EMPTY_FORM, SORT_CYCLE, SORT_LABELS, daysUntil, sortSubs } from "./lib/subscriptions";
+import {
+  fetchSubscriptions,
+  createSubscription,
+  updateSubscription,
+  deleteSubscription,
+  fromApiSubscription,
+  toApiPayload,
+} from "./lib/api";
 
 export default function App() {
   const [subs, setSubs] = useState([]);
@@ -21,6 +26,7 @@ export default function App() {
   const [editingId, setEditingId] = useState(null);
   const [form, setForm] = useState(EMPTY_FORM);
   const [errors, setErrors] = useState({});
+  const [saveError, setSaveError] = useState(null);
   const [sortBy, setSortBy] = useState("date");
 
   const addTriggerRef = useRef(null);
@@ -29,14 +35,19 @@ export default function App() {
     let cancelled = false;
     setLoading(true);
     setError(null);
-    const timer = setTimeout(() => {
-      if (cancelled) return;
-      setSubs(SEED_SUBSCRIPTIONS);
-      setLoading(false);
-    }, 500);
+    fetchSubscriptions()
+      .then((rows) => {
+        if (cancelled) return;
+        setSubs(rows.map(fromApiSubscription));
+        setLoading(false);
+      })
+      .catch((err) => {
+        if (cancelled) return;
+        setError(err.message);
+        setLoading(false);
+      });
     return () => {
       cancelled = true;
-      clearTimeout(timer);
     };
   }, [reloadKey]);
 
@@ -66,6 +77,7 @@ export default function App() {
     setEditingId(null);
     setForm(EMPTY_FORM);
     setErrors({});
+    setSaveError(null);
     setView("form");
   }
 
@@ -73,6 +85,7 @@ export default function App() {
     setEditingId(null);
     setForm(EMPTY_FORM);
     setErrors({});
+    setSaveError(null);
     setModalOpen(true);
   }
 
@@ -91,6 +104,7 @@ export default function App() {
     setEditingId(sub.id);
     setForm(editValuesFor(sub));
     setErrors({});
+    setSaveError(null);
     setView("form");
   }
 
@@ -98,44 +112,35 @@ export default function App() {
     setEditingId(sub.id);
     setForm(editValuesFor(sub));
     setErrors({});
+    setSaveError(null);
     setModalOpen(true);
   }
 
-  function handleDelete(id) {
+  async function handleDelete(id) {
+    const previous = subs;
     setSubs((prev) => prev.filter((s) => s.id !== id));
+    try {
+      await deleteSubscription(id);
+    } catch (err) {
+      setSubs(previous);
+    }
   }
 
-  function handleSave() {
+  async function handleSave() {
     if (!validate()) return;
-    if (editingId != null) {
-      setSubs((prev) =>
-        prev.map((s) =>
-          s.id === editingId
-            ? {
-                ...s,
-                name: form.name.trim(),
-                price: parseFloat(form.price),
-                nextRenewal: form.date,
-                icon: form.icon,
-                image: form.image,
-                category: form.category,
-              }
-            : s
-        )
-      );
-    } else {
-      setSubs((prev) => [
-        ...prev,
-        {
-          id: Date.now(),
-          name: form.name.trim(),
-          price: parseFloat(form.price),
-          nextRenewal: form.date,
-          icon: form.icon,
-          image: form.image,
-          category: form.category,
-        },
-      ]);
+    setSaveError(null);
+    const payload = toApiPayload(form);
+    try {
+      if (editingId != null) {
+        const updated = await updateSubscription(editingId, payload);
+        setSubs((prev) => prev.map((s) => (s.id === editingId ? fromApiSubscription(updated) : s)));
+      } else {
+        const created = await createSubscription(payload);
+        setSubs((prev) => [...prev, fromApiSubscription(created)]);
+      }
+    } catch (err) {
+      setSaveError(err.message);
+      return;
     }
     setForm(EMPTY_FORM);
     setErrors({});
@@ -176,6 +181,7 @@ export default function App() {
     form,
     setForm,
     errors,
+    saveError,
     onAdd: openAddMobile,
     onAddClick: openAddModal,
     onEdit: openEditMobile,

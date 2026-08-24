@@ -1,27 +1,48 @@
-// Temporary in-memory storage. TODO: replace with Turso queries (see README).
+import { db } from "../db.js";
 
-let subscriptions = [
-  { id: 1, name: "Netflix", price: 55, next_renewal_date: "2026-08-26", category: "בידור", user_id: null },
-  { id: 2, name: "Spotify", price: 20, next_renewal_date: "2026-09-03", category: "מוזיקה", user_id: null },
-  { id: 3, name: "חדר כושר", price: 150, next_renewal_date: "2026-09-01", category: "כושר", user_id: null },
-  { id: 4, name: "iCloud+", price: 12, next_renewal_date: "2026-09-12", category: "ענן", user_id: null },
-];
-
-let nextId = subscriptions.length + 1;
-
-export function getAll() {
-  return subscriptions;
+function toSubscription(row) {
+  return {
+    id: row.id,
+    name: row.name,
+    price: row.price,
+    next_renewal_date: row.next_renewal_date,
+    category: row.category,
+    icon: row.icon,
+    image: row.image,
+    user_id: row.user_id,
+  };
 }
 
-export function create({ name, price, next_renewal_date, category = null, user_id = null }) {
-  const sub = { id: nextId++, name, price, next_renewal_date, category, user_id };
-  subscriptions.push(sub);
-  return sub;
+export async function getAll() {
+  const result = await db.execute("SELECT * FROM subscriptions ORDER BY next_renewal_date ASC");
+  return result.rows.map(toSubscription);
 }
 
-export function remove(id) {
-  const index = subscriptions.findIndex((s) => s.id === id);
-  if (index === -1) return false;
-  subscriptions.splice(index, 1);
-  return true;
+export async function create({ name, price, next_renewal_date, category = null, icon = null, image = null, user_id = null }) {
+  const result = await db.execute({
+    sql: `INSERT INTO subscriptions (name, price, next_renewal_date, category, icon, image, user_id)
+          VALUES (?, ?, ?, ?, ?, ?, ?)
+          RETURNING *`,
+    args: [name, price, next_renewal_date, category, icon, image, user_id],
+  });
+  return toSubscription(result.rows[0]);
+}
+
+export async function update(id, { name, price, next_renewal_date, category = null, icon = null, image = null }) {
+  const result = await db.execute({
+    sql: `UPDATE subscriptions
+          SET name = ?, price = ?, next_renewal_date = ?, category = ?, icon = ?, image = ?
+          WHERE id = ?
+          RETURNING *`,
+    args: [name, price, next_renewal_date, category, icon, image, id],
+  });
+  return result.rows[0] ? toSubscription(result.rows[0]) : null;
+}
+
+export async function remove(id) {
+  const result = await db.execute({
+    sql: "DELETE FROM subscriptions WHERE id = ?",
+    args: [id],
+  });
+  return result.rowsAffected > 0;
 }

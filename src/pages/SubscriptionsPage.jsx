@@ -44,6 +44,7 @@ function MobileShell({
   form,
   setForm,
   errors,
+  saveError,
   editingId,
   onAdd,
   onEdit,
@@ -131,6 +132,7 @@ function MobileShell({
           </div>
           <div className="flex-1 px-[18px] py-5 flex flex-col gap-4">
             <FormFields form={form} setForm={setForm} errors={errors} />
+            {saveError && <p className="m-0 text-sm font-medium text-[#e11d48]">{saveError}</p>}
             <button
               onClick={onSave}
               className="mt-auto w-full rounded-[14px] p-3.5 text-white text-[15px] font-bold"
@@ -164,6 +166,7 @@ function TabletShell({
   form,
   setForm,
   errors,
+  saveError,
   onAddClick,
   onEdit,
   onDelete,
@@ -236,6 +239,7 @@ function TabletShell({
         form={form}
         setForm={setForm}
         errors={errors}
+        saveError={saveError}
         onClose={onCloseModal}
         onSave={onSave}
         triggerRef={addTriggerRef}
@@ -262,6 +266,7 @@ function DesktopShell({
   form,
   setForm,
   errors,
+  saveError,
   onAddClick,
   onEdit,
   onDelete,
@@ -413,6 +418,7 @@ function DesktopShell({
           form={form}
           setForm={setForm}
           errors={errors}
+          saveError={saveError}
           onClose={onCloseModal}
           onSave={onSave}
           triggerRef={addTriggerRef}

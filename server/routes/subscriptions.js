@@ -3,41 +3,85 @@ import * as Subscriptions from "../models/subscriptions.js";
 
 const router = Router();
 
-router.get("/", (req, res) => {
-  res.json(Subscriptions.getAll());
-});
-
-router.post("/", (req, res) => {
-  const { name, price, next_renewal_date, category, user_id } = req.body;
-
+function validateBody(body) {
+  const { name, price, next_renewal_date } = body;
   if (!name || typeof name !== "string" || !name.trim()) {
-    return res.status(400).json({ error: "name is required" });
+    return "name is required";
   }
   const priceNum = Number(price);
   if (!Number.isFinite(priceNum) || priceNum <= 0) {
-    return res.status(400).json({ error: "price must be a positive number" });
+    return "price must be a positive number";
   }
   if (!next_renewal_date || Number.isNaN(Date.parse(next_renewal_date))) {
-    return res.status(400).json({ error: "next_renewal_date must be a valid date" });
+    return "next_renewal_date must be a valid date";
   }
+  return null;
+}
 
-  const sub = Subscriptions.create({
-    name: name.trim(),
-    price: priceNum,
-    next_renewal_date,
-    category: category ?? null,
-    user_id: user_id ?? null,
-  });
-  res.status(201).json(sub);
+router.get("/", async (req, res, next) => {
+  try {
+    res.json(await Subscriptions.getAll());
+  } catch (err) {
+    next(err);
+  }
 });
 
-router.delete("/:id", (req, res) => {
-  const id = Number(req.params.id);
-  const removed = Subscriptions.remove(id);
-  if (!removed) {
-    return res.status(404).json({ error: "subscription not found" });
+router.post("/", async (req, res, next) => {
+  try {
+    const error = validateBody(req.body);
+    if (error) return res.status(400).json({ error });
+
+    const { name, price, next_renewal_date, category, icon, image, user_id } = req.body;
+    const sub = await Subscriptions.create({
+      name: name.trim(),
+      price: Number(price),
+      next_renewal_date,
+      category: category ?? null,
+      icon: icon ?? null,
+      image: image ?? null,
+      user_id: user_id ?? null,
+    });
+    res.status(201).json(sub);
+  } catch (err) {
+    next(err);
   }
-  res.status(204).end();
+});
+
+router.patch("/:id", async (req, res, next) => {
+  try {
+    const error = validateBody(req.body);
+    if (error) return res.status(400).json({ error });
+
+    const id = Number(req.params.id);
+    const { name, price, next_renewal_date, category, icon, image } = req.body;
+    const sub = await Subscriptions.update(id, {
+      name: name.trim(),
+      price: Number(price),
+      next_renewal_date,
+      category: category ?? null,
+      icon: icon ?? null,
+      image: image ?? null,
+    });
+    if (!sub) {
+      return res.status(404).json({ error: "subscription not found" });
+    }
+    res.json(sub);
+  } catch (err) {
+    next(err);
+  }
+});
+
+router.delete("/:id", async (req, res, next) => {
+  try {
+    const id = Number(req.params.id);
+    const removed = await Subscriptions.remove(id);
+    if (!removed) {
+      return res.status(404).json({ error: "subscription not found" });
+    }
+    res.status(204).end();
+  } catch (err) {
+    next(err);
+  }
 });
 
 export default router;
