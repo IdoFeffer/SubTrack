@@ -3,6 +3,7 @@ import { BrowserRouter, Route, Routes } from "react-router-dom";
 import MobileTabletNav from "./components/MobileTabletNav";
 import SubscriptionsPage from "./pages/SubscriptionsPage";
 import RenewalsPage from "./pages/RenewalsPage";
+import ExpensesPage from "./pages/ExpensesPage";
 import { SEED_SUBSCRIPTIONS, EMPTY_FORM, SORT_CYCLE, SORT_LABELS, daysUntil, sortSubs } from "./lib/subscriptions";
 
 // TODO (Claude Code): connect to a real backend (Node/Express + Turso) instead of this local state.
@@ -193,6 +194,10 @@ export default function App() {
         <Route
           path="/renewals"
           element={<RenewalsPage subs={subs} loading={loading} error={error} onRetry={retry} onDelete={handleDelete} />}
+        />
+        <Route
+          path="/expenses"
+          element={<ExpensesPage subs={subs} loading={loading} error={error} onRetry={retry} />}
         />
       </Routes>
     </BrowserRouter>

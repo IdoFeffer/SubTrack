@@ -1,9 +1,10 @@
 import { Link } from "react-router-dom";
-import { Calendar, LayoutGrid } from "lucide-react";
+import { BarChart3, Calendar, LayoutGrid } from "lucide-react";
 
 const NAV_ITEMS = [
   { key: "subscriptions", label: "המנויים שלי", icon: LayoutGrid, to: "/" },
   { key: "renewals", label: "לוח חידושים", icon: Calendar, to: "/renewals" },
+  { key: "expenses", label: "הוצאות", icon: BarChart3, to: "/expenses" },
 ];
 
 export default function Sidebar({
