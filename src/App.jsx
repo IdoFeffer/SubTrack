@@ -4,6 +4,7 @@ import MobileTabletNav from "./components/MobileTabletNav";
 import SubscriptionsPage from "./pages/SubscriptionsPage";
 import RenewalsPage from "./pages/RenewalsPage";
 import ExpensesPage from "./pages/ExpensesPage";
+import SettingsPage from "./pages/SettingsPage";
 import { SEED_SUBSCRIPTIONS, EMPTY_FORM, SORT_CYCLE, SORT_LABELS, daysUntil, sortSubs } from "./lib/subscriptions";
 
 // TODO (Claude Code): connect to a real backend (Node/Express + Turso) instead of this local state.
@@ -199,6 +200,7 @@ export default function App() {
           path="/expenses"
           element={<ExpensesPage subs={subs} loading={loading} error={error} onRetry={retry} />}
         />
+        <Route path="/settings" element={<SettingsPage subs={subs} />} />
       </Routes>
     </BrowserRouter>
   );

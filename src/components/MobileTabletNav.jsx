@@ -1,10 +1,11 @@
 import { NavLink } from "react-router-dom";
-import { BarChart3, Calendar, LayoutGrid } from "lucide-react";
+import { BarChart3, Calendar, LayoutGrid, Settings } from "lucide-react";
 
 const NAV_ITEMS = [
   { label: "מנויים", icon: LayoutGrid, to: "/", end: true },
   { label: "חידושים", icon: Calendar, to: "/renewals" },
   { label: "הוצאות", icon: BarChart3, to: "/expenses" },
+  { label: "הגדרות", icon: Settings, to: "/settings" },
 ];
 
 export default function MobileTabletNav() {
