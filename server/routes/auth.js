@@ -124,7 +124,8 @@ router.post("/google", async (req, res, next) => {
 });
 
 router.post("/logout", (req, res) => {
-  res.clearCookie(COOKIE_NAME, cookieOptions);
+  const { maxAge, ...clearCookieOptions } = cookieOptions;
+  res.clearCookie(COOKIE_NAME, clearCookieOptions);
   res.status(204).end();
 });
 

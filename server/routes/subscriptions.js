@@ -1,7 +1,9 @@
 import { Router } from "express";
 import * as Subscriptions from "../models/subscriptions.js";
+import { requireAuth } from "../middleware/auth.js";
 
 const router = Router();
+router.use(requireAuth);
 
 function validateBody(body) {
   const { name, price, next_renewal_date } = body;
@@ -20,7 +22,7 @@ function validateBody(body) {
 
 router.get("/", async (req, res, next) => {
   try {
-    res.json(await Subscriptions.getAll());
+    res.json(await Subscriptions.getAll(req.userId));
   } catch (err) {
     next(err);
   }
@@ -31,7 +33,7 @@ router.post("/", async (req, res, next) => {
     const error = validateBody(req.body);
     if (error) return res.status(400).json({ error });
 
-    const { name, price, next_renewal_date, category, icon, image, user_id } = req.body;
+    const { name, price, next_renewal_date, category, icon, image } = req.body;
     const sub = await Subscriptions.create({
       name: name.trim(),
       price: Number(price),
@@ -39,7 +41,7 @@ router.post("/", async (req, res, next) => {
       category: category ?? null,
       icon: icon ?? null,
       image: image ?? null,
-      user_id: user_id ?? null,
+      user_id: req.userId,
     });
     res.status(201).json(sub);
   } catch (err) {
@@ -54,7 +56,7 @@ router.patch("/:id", async (req, res, next) => {
 
     const id = Number(req.params.id);
     const { name, price, next_renewal_date, category, icon, image } = req.body;
-    const sub = await Subscriptions.update(id, {
+    const sub = await Subscriptions.update(id, req.userId, {
       name: name.trim(),
       price: Number(price),
       next_renewal_date,
@@ -74,7 +76,7 @@ router.patch("/:id", async (req, res, next) => {
 router.delete("/:id", async (req, res, next) => {
   try {
     const id = Number(req.params.id);
-    const removed = await Subscriptions.remove(id);
+    const removed = await Subscriptions.remove(id, req.userId);
     if (!removed) {
       return res.status(404).json({ error: "subscription not found" });
     }

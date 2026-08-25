@@ -13,12 +13,15 @@ function toSubscription(row) {
   };
 }
 
-export async function getAll() {
-  const result = await db.execute("SELECT * FROM subscriptions ORDER BY next_renewal_date ASC");
+export async function getAll(userId) {
+  const result = await db.execute({
+    sql: "SELECT * FROM subscriptions WHERE user_id = ? ORDER BY next_renewal_date ASC",
+    args: [userId],
+  });
   return result.rows.map(toSubscription);
 }
 
-export async function create({ name, price, next_renewal_date, category = null, icon = null, image = null, user_id = null }) {
+export async function create({ name, price, next_renewal_date, category = null, icon = null, image = null, user_id }) {
   const result = await db.execute({
     sql: `INSERT INTO subscriptions (name, price, next_renewal_date, category, icon, image, user_id)
           VALUES (?, ?, ?, ?, ?, ?, ?)
@@ -28,21 +31,21 @@ export async function create({ name, price, next_renewal_date, category = null, 
   return toSubscription(result.rows[0]);
 }
 
-export async function update(id, { name, price, next_renewal_date, category = null, icon = null, image = null }) {
+export async function update(id, userId, { name, price, next_renewal_date, category = null, icon = null, image = null }) {
   const result = await db.execute({
     sql: `UPDATE subscriptions
           SET name = ?, price = ?, next_renewal_date = ?, category = ?, icon = ?, image = ?
-          WHERE id = ?
+          WHERE id = ? AND user_id = ?
           RETURNING *`,
-    args: [name, price, next_renewal_date, category, icon, image, id],
+    args: [name, price, next_renewal_date, category, icon, image, id, userId],
   });
   return result.rows[0] ? toSubscription(result.rows[0]) : null;
 }
 
-export async function remove(id) {
+export async function remove(id, userId) {
   const result = await db.execute({
-    sql: "DELETE FROM subscriptions WHERE id = ?",
-    args: [id],
+    sql: "DELETE FROM subscriptions WHERE id = ? AND user_id = ?",
+    args: [id, userId],
   });
   return result.rowsAffected > 0;
 }

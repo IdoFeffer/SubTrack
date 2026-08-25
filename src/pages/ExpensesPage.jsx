@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import MetricCard from "../components/MetricCard";
 import SkeletonRow from "../components/SkeletonRow";
@@ -8,6 +9,7 @@ import { categoryColor, lastNMonths, monthLabel, round2 } from "../lib/subscript
 
 export default function ExpensesPage({ subs, loading, error, onRetry }) {
   const navigate = useNavigate();
+  const [showTopCategoryDetails, setShowTopCategoryDetails] = useState(false);
   const monthlyTotal = round2(subs.reduce((sum, s) => sum + s.price, 0));
   const yearlyTotal = round2(monthlyTotal * 12);
 
@@ -33,6 +35,9 @@ export default function ExpensesPage({ subs, loading, error, onRetry }) {
 
   const topCategory = categoryTotals[0] ?? null;
   const topCategoryShare = topCategory && monthlyTotal ? Math.round((topCategory.total / monthlyTotal) * 100) : 0;
+  const topCategorySubs = topCategory
+    ? subs.filter((s) => s.category === topCategory.category).sort((a, b) => b.price - a.price)
+    : [];
 
   return (
     <PageShell
@@ -64,13 +69,13 @@ export default function ExpensesPage({ subs, loading, error, onRetry }) {
             <MetricCard label="המנוי היקר" value={priciestSub?.name ?? "—"} variant="teal" valueSize="text-[24px]" />
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-[1fr_330px] gap-[22px]">
+          <div className="grid grid-cols-1 lg:grid-cols-[1fr_330px] gap-[22px] items-start">
             <div
               className="bg-white border border-[#ece7f7] rounded-[20px] p-6 flex flex-col gap-4"
               style={{ boxShadow: "0 16px 36px -28px rgba(27,16,51,.7)" }}
             >
               <p className="m-0 text-[15px] font-bold text-[#1b1033]">מגמת הוצאות</p>
-              <div className="flex-1 grid grid-cols-6 gap-3 sm:gap-[18px] items-end min-h-[180px]">
+              <div className="grid grid-cols-6 gap-3 sm:gap-[18px] items-end h-[180px]">
                 {months.map((m) => (
                   <div key={m.label} className="flex flex-col items-center gap-2.5 h-full justify-end">
                     <p className="m-0 text-[13px] font-bold text-[#1b1033]" dir="ltr">
@@ -130,9 +135,28 @@ export default function ExpensesPage({ subs, loading, error, onRetry }) {
                   <p className="mt-2.5 mb-0 text-[13px] text-[#0f766e]">
                     {topCategory.category || "אחר"} מהווה {topCategoryShare}% מההוצאה החודשית שלך.
                   </p>
-                  <div className="mt-3.5 inline-block rounded-[10px] px-3.5 py-2.5 text-[13px] font-semibold text-white bg-[#0f766e]">
-                    הצג פירוט
-                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setShowTopCategoryDetails((v) => !v)}
+                    className="mt-3.5 rounded-[10px] px-3.5 py-2.5 text-[13px] font-semibold text-white bg-[#0f766e]"
+                  >
+                    {showTopCategoryDetails ? "הסתר פירוט" : "הצג פירוט"}
+                  </button>
+
+                  {showTopCategoryDetails && (
+                    <div className="mt-3.5 flex flex-col gap-2.5 border-t border-[#b9e6e0] pt-3.5">
+                      {topCategorySubs.map((sub) => (
+                        <div key={sub.id} className="flex items-center justify-between text-[13px]">
+                          <span className="text-[#0f766e] font-medium">
+                            {sub.icon} {sub.name}
+                          </span>
+                          <span className="text-[#0f766e] font-semibold" dir="ltr">
+                            ₪{sub.price}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
               )}
             </div>
