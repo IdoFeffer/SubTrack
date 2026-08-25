@@ -100,13 +100,14 @@ export function buildCalendar(year, monthIndex, subs) {
       bg: "#faf8ff",
       border: "#f4f0fb",
       dayColor: "#cfc6e4",
-      chip: null,
+      chips: [],
     });
   }
 
   for (let d = 1; d <= daysInMonth; d++) {
     const iso = `${year}-${String(monthIndex + 1).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
-    const hit = subs.find((s) => s.nextRenewal === iso);
+    const hits = subs.filter((s) => s.nextRenewal === iso);
+    const hit = hits[0] ?? null;
     const cat = hit ? categoryColor(hit.category) : null;
     cells.push({
       key: `day-${d}`,
@@ -114,7 +115,7 @@ export function buildCalendar(year, monthIndex, subs) {
       bg: hit ? cat.tint : "#fff",
       border: hit ? `${cat.color}33` : "#f4f0fb",
       dayColor: hit ? cat.color : "#8b7cae",
-      chip: hit ? { name: `${hit.icon} ${hit.name}`, color: cat.color } : null,
+      chips: hits.map((s) => ({ name: `${s.icon} ${s.name}`, color: categoryColor(s.category).color })),
     });
   }
 

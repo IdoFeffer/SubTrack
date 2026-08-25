@@ -111,13 +111,19 @@ export default function RenewalsPage({ subs, loading, error, onRetry, onDelete }
                   <span className="text-[13px] font-semibold" style={{ color: cell.dayColor }}>
                     {cell.day}
                   </span>
-                  {cell.chip && (
+                  {cell.chips?.slice(0, 2).map((chip, i) => (
                     <div
+                      key={i}
                       className="rounded-lg px-1.5 py-1 text-[11px] font-semibold truncate"
-                      style={{ background: "#ffffffcc", color: cell.chip.color }}
+                      style={{ background: "#ffffffcc", color: chip.color }}
                     >
-                      {cell.chip.name}
+                      {chip.name}
                     </div>
+                  ))}
+                  {cell.chips?.length > 2 && (
+                    <span className="text-[10px] font-semibold px-1.5" style={{ color: cell.dayColor }}>
+                      +{cell.chips.length - 2}
+                    </span>
                   )}
                 </div>
               ))}
