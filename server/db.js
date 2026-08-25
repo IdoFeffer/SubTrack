@@ -25,4 +25,23 @@ export async function initSchema() {
       user_id TEXT
     )
   `);
+
+  await db.execute(`
+    CREATE TABLE IF NOT EXISTS users (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      email TEXT NOT NULL UNIQUE,
+      password_hash TEXT NOT NULL,
+      name TEXT,
+      created_at TEXT NOT NULL DEFAULT (datetime('now'))
+    )
+  `);
+
+  try {
+    await db.execute("ALTER TABLE users ADD COLUMN google_id TEXT");
+  } catch {
+    // column already exists
+  }
+  await db.execute(
+    "CREATE UNIQUE INDEX IF NOT EXISTS idx_users_google_id ON users(google_id) WHERE google_id IS NOT NULL"
+  );
 }

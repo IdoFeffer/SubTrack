@@ -1,5 +1,6 @@
 import { useState } from "react";
 import PageShell from "../components/PageShell";
+import { useAuth } from "../context/AuthContext";
 import { CATEGORY_OPTIONS, categoryColor } from "../lib/subscriptions";
 
 const INITIAL_TOGGLES = [
@@ -28,7 +29,10 @@ function Toggle({ on, disabled, onClick }) {
 }
 
 export default function SettingsPage({ subs }) {
+  const { user, logout } = useAuth();
   const [toggles, setToggles] = useState(INITIAL_TOGGLES);
+  const displayName = user?.name?.trim() || user?.email || "";
+  const initial = displayName.charAt(0).toUpperCase();
 
   function toggle(key) {
     setToggles((prev) => prev.map((t) => (t.key === key && !t.disabled ? { ...t, on: !t.on } : t)));
@@ -118,18 +122,22 @@ export default function SettingsPage({ subs }) {
             <p className="m-0 text-[15px] font-bold text-[#1b1033]">חשבון</p>
             <div className="flex items-center gap-3">
               <div className="w-[46px] h-[46px] rounded-full flex items-center justify-center text-white text-[17px] font-bold bg-[linear-gradient(140deg,#a855f7,#ec4899)]">
-                {"י"}
+                {initial}
               </div>
               <div>
-                <p className="m-0 text-sm font-semibold text-[#1b1033]">יעל כהן</p>
+                <p className="m-0 text-sm font-semibold text-[#1b1033]">{user?.name || "המשתמש שלי"}</p>
                 <p className="mt-0.5 mb-0 text-xs text-[#8b7cae]" dir="ltr">
-                  yael@example.com
+                  {user?.email}
                 </p>
               </div>
             </div>
-            <div className="rounded-xl py-2.5 text-center text-sm font-semibold border-[1.5px] border-[#ddd3f7] text-[#4c1d95]">
-              התחברות עם Google
-            </div>
+            <button
+              type="button"
+              onClick={logout}
+              className="rounded-xl py-2.5 text-center text-sm font-semibold border-[1.5px] border-[#ddd3f7] text-[#4c1d95]"
+            >
+              התנתקות
+            </button>
           </div>
 
           <div

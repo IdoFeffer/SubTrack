@@ -3,6 +3,7 @@ const API_BASE = import.meta.env.VITE_API_URL ?? "/api";
 async function request(path, options) {
   const res = await fetch(`${API_BASE}${path}`, {
     headers: { "Content-Type": "application/json" },
+    credentials: "include",
     ...options,
   });
   if (!res.ok) {
@@ -11,6 +12,26 @@ async function request(path, options) {
   }
   if (res.status === 204) return null;
   return res.json();
+}
+
+export function signup({ email, password, name }) {
+  return request("/auth/signup", { method: "POST", body: JSON.stringify({ email, password, name }) });
+}
+
+export function login({ email, password }) {
+  return request("/auth/login", { method: "POST", body: JSON.stringify({ email, password }) });
+}
+
+export function loginWithGoogle(credential) {
+  return request("/auth/google", { method: "POST", body: JSON.stringify({ credential }) });
+}
+
+export function logout() {
+  return request("/auth/logout", { method: "POST" });
+}
+
+export function fetchMe() {
+  return request("/auth/me");
 }
 
 export function fromApiSubscription(row) {

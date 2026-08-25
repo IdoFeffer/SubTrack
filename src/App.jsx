@@ -5,6 +5,8 @@ import SubscriptionsPage from "./pages/SubscriptionsPage";
 import RenewalsPage from "./pages/RenewalsPage";
 import ExpensesPage from "./pages/ExpensesPage";
 import SettingsPage from "./pages/SettingsPage";
+import LoginPage from "./pages/LoginPage";
+import { useAuth } from "./context/AuthContext";
 import { EMPTY_FORM, SORT_CYCLE, SORT_LABELS, daysUntil, sortSubs } from "./lib/subscriptions";
 import {
   fetchSubscriptions,
@@ -16,6 +18,20 @@ import {
 } from "./lib/api";
 
 export default function App() {
+  const { user, loading: authLoading } = useAuth();
+
+  if (authLoading) {
+    return <div className="min-h-screen bg-[linear-gradient(180deg,#faf5ff,#fdf2f8)]" />;
+  }
+
+  if (!user) {
+    return <LoginPage />;
+  }
+
+  return <AppShell />;
+}
+
+function AppShell() {
   const [subs, setSubs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
