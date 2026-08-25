@@ -4,12 +4,12 @@ import SkeletonRow from "../components/SkeletonRow";
 import ErrorBanner from "../components/ErrorBanner";
 import EmptyState from "../components/EmptyState";
 import PageShell from "../components/PageShell";
-import { categoryColor, lastNMonths, monthLabel } from "../lib/subscriptions";
+import { categoryColor, lastNMonths, monthLabel, round2 } from "../lib/subscriptions";
 
 export default function ExpensesPage({ subs, loading, error, onRetry }) {
   const navigate = useNavigate();
-  const monthlyTotal = subs.reduce((sum, s) => sum + s.price, 0);
-  const yearlyTotal = monthlyTotal * 12;
+  const monthlyTotal = round2(subs.reduce((sum, s) => sum + s.price, 0));
+  const yearlyTotal = round2(monthlyTotal * 12);
 
   const months = lastNMonths(6).map(({ year, monthIndex, isCurrent }) => ({
     label: monthLabel(year, monthIndex).split(" ")[0],
@@ -26,7 +26,7 @@ export default function ExpensesPage({ subs, loading, error, onRetry }) {
   const categoryTotals = [];
   for (const sub of subs) {
     const existing = categoryTotals.find((c) => c.category === sub.category);
-    if (existing) existing.total += sub.price;
+    if (existing) existing.total = round2(existing.total + sub.price);
     else categoryTotals.push({ category: sub.category, total: sub.price });
   }
   categoryTotals.sort((a, b) => b.total - a.total);

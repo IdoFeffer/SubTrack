@@ -7,7 +7,7 @@ import ExpensesPage from "./pages/ExpensesPage";
 import SettingsPage from "./pages/SettingsPage";
 import LoginPage from "./pages/LoginPage";
 import { useAuth } from "./context/AuthContext";
-import { EMPTY_FORM, SORT_CYCLE, SORT_LABELS, daysUntil, sortSubs } from "./lib/subscriptions";
+import { EMPTY_FORM, SORT_CYCLE, SORT_LABELS, daysUntil, round2, sortSubs } from "./lib/subscriptions";
 import {
   fetchSubscriptions,
   createSubscription,
@@ -67,8 +67,8 @@ function AppShell() {
     };
   }, [reloadKey]);
 
-  const monthlyTotal = subs.reduce((sum, s) => sum + s.price, 0);
-  const yearlyTotal = monthlyTotal * 12;
+  const monthlyTotal = round2(subs.reduce((sum, s) => sum + s.price, 0));
+  const yearlyTotal = round2(monthlyTotal * 12);
   const count = subs.length;
   const nextRenewalDays = subs.length ? Math.min(...subs.map((s) => daysUntil(s.nextRenewal))) : null;
   const soonestSub = subs.length

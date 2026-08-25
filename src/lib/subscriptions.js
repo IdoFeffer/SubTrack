@@ -40,6 +40,10 @@ export const EMPTY_FORM = {
   category: null,
 };
 
+export function round2(amount) {
+  return Math.round((amount + Number.EPSILON) * 100) / 100;
+}
+
 export function formatDate(dateStr) {
   return new Date(dateStr).toLocaleDateString("he-IL", { day: "numeric", month: "long" });
 }

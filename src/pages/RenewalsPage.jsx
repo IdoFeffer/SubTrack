@@ -11,6 +11,7 @@ import {
   categoryColor,
   daysUntil,
   monthLabel,
+  round2,
   sortSubs,
 } from "../lib/subscriptions";
 
@@ -23,7 +24,7 @@ export default function RenewalsPage({ subs, loading, error, onRetry, onDelete }
     const d = new Date(s.nextRenewal);
     return d.getFullYear() === cursor.year && d.getMonth() === cursor.monthIndex;
   });
-  const monthTotal = monthSubs.reduce((sum, s) => sum + s.price, 0);
+  const monthTotal = round2(monthSubs.reduce((sum, s) => sum + s.price, 0));
 
   const calendar = buildCalendar(cursor.year, cursor.monthIndex, subs);
   const upcoming = sortSubs(subs, "date");
