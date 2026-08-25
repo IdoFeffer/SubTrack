@@ -1,10 +1,15 @@
-export const ICON_OPTIONS = ["📦", "🎬", "🎵", "🏋", "☁️", "🎮", "📰", "🍽️", "🚗", "💊", "📚", "💻"];
+export const ICON_OPTIONS = ["📦", "🎬", "🎵", "🏋", "☁️", "🎮", "📰", "🍽️", "🚗", "💊", "📚", "💻", "💼"];
 
 export const CATEGORY_COLORS = {
   בידור: { color: "#e11d48", tint: "#ffe4e6" },
   מוזיקה: { color: "#059669", tint: "#d1fae5" },
   כושר: { color: "#c2410c", tint: "#ffedd5" },
   ענן: { color: "#0284c7", tint: "#e0f2fe" },
+  תוכנה: { color: "#4f46e5", tint: "#e0e7ff" },
+  אוכל: { color: "#ca8a04", tint: "#fef9c3" },
+  תחבורה: { color: "#0d9488", tint: "#ccfbf1" },
+  עסק: { color: "#78350f", tint: "#f3e6d5" },
+  אחר: { color: "#64748b", tint: "#e2e8f0" },
 };
 
 export const DEFAULT_CATEGORY_COLOR = { color: "#7c3aed", tint: "#f3e8ff" };
@@ -17,6 +22,7 @@ export const CATEGORY_OPTIONS = [
   "תוכנה",
   "אוכל",
   "תחבורה",
+  "עסק",
   "אחר",
 ];
 
