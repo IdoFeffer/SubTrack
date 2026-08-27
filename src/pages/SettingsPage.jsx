@@ -16,6 +16,46 @@ const TOGGLE_META = [
   { key: "gmail", title: "ייבוא ממייל (Gmail)", desc: "זיהוי אוטומטי של חיובים — בקרוב", disabled: true },
 ];
 
+function ConfirmDialog({ open, title, message, confirmLabel, confirming, error, onConfirm, onCancel }) {
+  if (!open) return null;
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center p-6"
+      style={{ background: "rgba(27,16,51,.45)", animation: "subtrack-scrim-in 150ms ease-out" }}
+      onClick={onCancel}
+    >
+      <div
+        role="dialog"
+        aria-modal="true"
+        className="w-[380px] max-w-full bg-white rounded-[22px] p-6"
+        style={{ boxShadow: "0 40px 80px -30px rgba(27,16,51,.7)", animation: "subtrack-dialog-in 180ms ease-out" }}
+        onClick={(e) => e.stopPropagation()}
+      >
+        <p className="m-0 text-lg font-bold text-[#1b1033]">{title}</p>
+        <p className="mt-2 mb-0 text-sm text-[#6b5b8a]">{message}</p>
+        {error && <p className="mt-2 mb-0 text-sm font-medium text-[#e11d48]">{error}</p>}
+        <div className="mt-5 flex gap-2.5">
+          <button
+            type="button"
+            onClick={onConfirm}
+            disabled={confirming}
+            className="flex-1 rounded-[13px] py-3 text-white text-sm font-bold bg-[#e11d48] disabled:opacity-60"
+          >
+            {confirming ? "מוחק..." : confirmLabel}
+          </button>
+          <button
+            type="button"
+            onClick={onCancel}
+            className="rounded-[13px] px-5 py-3 text-sm font-semibold border-[1.5px] border-[#ddd3f7] text-[#4c1d95]"
+          >
+            ביטול
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function Toggle({ on, disabled, onClick }) {
   return (
     <button
@@ -36,12 +76,15 @@ function Toggle({ on, disabled, onClick }) {
 }
 
 export default function SettingsPage({ subs }) {
-  const { user, logout } = useAuth();
+  const { user, logout, deleteAccount } = useAuth();
   const [settings, setSettings] = useState(null);
   const [draft, setDraft] = useState(null);
   const [saving, setSaving] = useState(false);
   const [justSaved, setJustSaved] = useState(false);
   const [saveError, setSaveError] = useState(null);
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState(null);
   const displayName = user?.name?.trim() || user?.email || "";
   const initial = displayName.charAt(0).toUpperCase();
 
@@ -80,6 +123,17 @@ export default function SettingsPage({ subs }) {
       setSaveError(err.message);
     } finally {
       setSaving(false);
+    }
+  }
+
+  async function handleDeleteAccount() {
+    setDeleting(true);
+    setDeleteError(null);
+    try {
+      await deleteAccount();
+    } catch (err) {
+      setDeleteError(err.message);
+      setDeleting(false);
     }
   }
 
@@ -233,12 +287,30 @@ export default function SettingsPage({ subs }) {
           <div className="bg-white border border-[#fecdd3] rounded-[20px] p-5">
             <p className="m-0 text-[15px] font-bold text-[#9f1239]">אזור מסוכן</p>
             <p className="mt-2 mb-0 text-[13px] text-[#8b7cae]">מחיקת כל המנויים וההיסטוריה. אין דרך חזרה.</p>
-            <div className="mt-3.5 inline-block rounded-[10px] px-3.5 py-2.5 text-[13px] font-semibold text-[#e11d48] bg-[#fff1f2] border border-[#fecdd3]">
+            <button
+              type="button"
+              onClick={() => setDeleteConfirmOpen(true)}
+              className="mt-3.5 rounded-[10px] px-3.5 py-2.5 text-[13px] font-semibold text-[#e11d48] bg-[#fff1f2] border border-[#fecdd3]"
+            >
               מחק את החשבון
-            </div>
+            </button>
           </div>
         </div>
       </div>
+
+      <ConfirmDialog
+        open={deleteConfirmOpen}
+        title="למחוק את החשבון?"
+        message="פעולה זו תמחק לצמיתות את החשבון שלך ואת כל המנויים וההיסטוריה. אי אפשר לשחזר."
+        confirmLabel="כן, מחק את החשבון"
+        confirming={deleting}
+        error={deleteError}
+        onConfirm={handleDeleteAccount}
+        onCancel={() => {
+          setDeleteConfirmOpen(false);
+          setDeleteError(null);
+        }}
+      />
     </PageShell>
   );
 }

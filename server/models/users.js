@@ -84,4 +84,11 @@ export async function updateSettings(userId, partialSettings) {
   return merged;
 }
 
+export async function remove(id) {
+  await db.execute({
+    sql: "DELETE FROM users WHERE id = ?",
+    args: [id],
+  });
+}
+
 export { toUser };

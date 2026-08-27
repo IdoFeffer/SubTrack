@@ -49,3 +49,10 @@ export async function remove(id, userId) {
   });
   return result.rowsAffected > 0;
 }
+
+export async function removeAllForUser(userId) {
+  await db.execute({
+    sql: "DELETE FROM subscriptions WHERE user_id = ?",
+    args: [userId],
+  });
+}

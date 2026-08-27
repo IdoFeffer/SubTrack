@@ -1,5 +1,6 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import {
+  deleteAccount as apiDeleteAccount,
   fetchMe,
   login as apiLogin,
   loginWithGoogle as apiLoginWithGoogle,
@@ -40,8 +41,13 @@ export function AuthProvider({ children }) {
     setUser(null);
   }
 
+  async function deleteAccount() {
+    await apiDeleteAccount();
+    setUser(null);
+  }
+
   return (
-    <AuthContext.Provider value={{ user, loading, login, signup, loginWithGoogle, logout }}>
+    <AuthContext.Provider value={{ user, loading, login, signup, loginWithGoogle, logout, deleteAccount }}>
       {children}
     </AuthContext.Provider>
   );

@@ -3,6 +3,7 @@ import bcrypt from "bcryptjs";
 import crypto from "crypto";
 import { OAuth2Client } from "google-auth-library";
 import * as Users from "../models/users.js";
+import * as Subscriptions from "../models/subscriptions.js";
 import { COOKIE_NAME, signToken, requireAuth } from "../middleware/auth.js";
 
 const router = Router();
@@ -134,6 +135,18 @@ router.get("/me", requireAuth, async (req, res, next) => {
     const user = await Users.findById(req.userId);
     if (!user) return res.status(401).json({ error: "not authenticated" });
     res.json(user);
+  } catch (err) {
+    next(err);
+  }
+});
+
+router.delete("/me", requireAuth, async (req, res, next) => {
+  try {
+    await Subscriptions.removeAllForUser(req.userId);
+    await Users.remove(req.userId);
+    const { maxAge, ...clearCookieOptions } = cookieOptions;
+    res.clearCookie(COOKIE_NAME, clearCookieOptions);
+    res.status(204).end();
   } catch (err) {
     next(err);
   }

@@ -30,6 +30,10 @@ export function logout() {
   return request("/auth/logout", { method: "POST" });
 }
 
+export function deleteAccount() {
+  return request("/auth/me", { method: "DELETE" });
+}
+
 export function fetchMe() {
   return request("/auth/me");
 }
