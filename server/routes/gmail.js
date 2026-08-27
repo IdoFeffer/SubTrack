@@ -8,8 +8,37 @@ const router = Router();
 
 const GMAIL_SCOPE = "https://www.googleapis.com/auth/gmail.readonly";
 
-const SCAN_QUERY =
-  '(receipt OR invoice OR "payment confirmation" OR charged OR renewed OR subscription OR קבלה OR חשבונית OR "אישור תשלום" OR חויב OR חידוש) newer_than:180d';
+const SCAN_KEYWORDS = [
+  // English
+  "receipt",
+  "invoice",
+  "payment confirmation",
+  "charged",
+  "renewed",
+  "renewal",
+  "subscription",
+  "billed",
+  "bill",
+  "order confirmation",
+  "payment received",
+  "thank you for your payment",
+  "statement",
+  "debited",
+  "auto-renew",
+  // Hebrew
+  "קבלה",
+  "חשבונית",
+  "אישור תשלום",
+  "חויב",
+  "חידוש",
+  "תשלום בוצע",
+  "חיוב חודשי",
+  "מנוי חודשי",
+  "אישור הזמנה",
+  "הוראת קבע",
+];
+
+const SCAN_QUERY = `(${SCAN_KEYWORDS.map((k) => (k.includes(" ") ? `"${k}"` : k)).join(" OR ")}) newer_than:180d`;
 
 const AMOUNT_PATTERNS = [
   /₪\s*([\d,]+(?:\.\d{1,2})?)/,
