@@ -236,7 +236,7 @@ function AppShell() {
           path="/expenses"
           element={<ExpensesPage subs={subs} loading={loading} error={error} onRetry={retry} />}
         />
-        <Route path="/settings" element={<SettingsPage subs={subs} />} />
+        <Route path="/settings" element={<SettingsPage subs={subs} onSubscriptionAdded={retry} />} />
       </Routes>
     </BrowserRouter>
   );

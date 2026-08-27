@@ -96,3 +96,7 @@ export function gmailConnectUrl() {
 export function disconnectGmail() {
   return request("/gmail/disconnect", { method: "POST" });
 }
+
+export function scanGmail() {
+  return request("/gmail/scan");
+}

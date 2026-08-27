@@ -3,10 +3,12 @@ import { useSearchParams } from "react-router-dom";
 import PageShell from "../components/PageShell";
 import { useAuth } from "../context/AuthContext";
 import {
+  createSubscription,
   disconnectGmail,
   fetchGmailStatus,
   fetchSettings,
   gmailConnectUrl,
+  scanGmail,
   updateSettings,
 } from "../lib/api";
 import { CATEGORY_OPTIONS, categoryColor } from "../lib/subscriptions";
@@ -63,6 +65,79 @@ function ConfirmDialog({ open, title, message, confirmLabel, confirming, error, 
   );
 }
 
+function CandidateCard({ candidate, adding, onAdd, onDismiss }) {
+  const [name, setName] = useState(candidate.name);
+  const [price, setPrice] = useState(String(candidate.price));
+  const [date, setDate] = useState(candidate.suggestedRenewalDate || "");
+  const [category, setCategory] = useState("");
+
+  return (
+    <div className="rounded-xl border border-[#ddd3f7] bg-white p-3.5 flex flex-col gap-2.5">
+      <div className="flex items-center justify-between gap-2">
+        <p className="m-0 text-sm font-semibold text-[#1b1033] truncate">{candidate.name}</p>
+        {candidate.recurring && (
+          <span className="shrink-0 text-[11px] font-semibold text-[#7c3aed] bg-[#f3e8ff] rounded-full px-2 py-0.5">
+            נמצא {candidate.occurrences} פעמים
+          </span>
+        )}
+      </div>
+      <div className="grid grid-cols-2 gap-2">
+        <input
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          placeholder="שם המנוי"
+          className="rounded-lg px-2.5 py-2 text-xs border-[1.5px] border-[#ddd3f7] bg-[#faf8ff] text-[#1b1033] outline-none focus:border-[#7c3aed] focus:bg-white"
+        />
+        <input
+          type="number"
+          value={price}
+          onChange={(e) => setPrice(e.target.value)}
+          placeholder="מחיר"
+          dir="ltr"
+          className="rounded-lg px-2.5 py-2 text-xs border-[1.5px] border-[#ddd3f7] bg-[#faf8ff] text-[#1b1033] outline-none focus:border-[#7c3aed] focus:bg-white text-right"
+        />
+        <input
+          type="date"
+          value={date}
+          onChange={(e) => setDate(e.target.value)}
+          dir="ltr"
+          className="rounded-lg px-2.5 py-2 text-xs border-[1.5px] border-[#ddd3f7] bg-[#faf8ff] text-[#1b1033] outline-none focus:border-[#7c3aed] focus:bg-white"
+        />
+        <select
+          value={category}
+          onChange={(e) => setCategory(e.target.value)}
+          className="rounded-lg px-2.5 py-2 text-xs border-[1.5px] border-[#ddd3f7] bg-[#faf8ff] text-[#1b1033] outline-none focus:border-[#7c3aed] focus:bg-white"
+        >
+          <option value="">קטגוריה</option>
+          {CATEGORY_OPTIONS.map((c) => (
+            <option key={c} value={c}>
+              {c}
+            </option>
+          ))}
+        </select>
+      </div>
+      <div className="flex gap-2">
+        <button
+          type="button"
+          onClick={() => onAdd({ name, price, date, category })}
+          disabled={adding}
+          className="flex-1 rounded-lg py-2 text-xs font-semibold text-white disabled:opacity-60"
+          style={{ background: "linear-gradient(140deg,#7c3aed,#c026d3)" }}
+        >
+          {adding ? "מוסיף..." : "הוסף מנוי"}
+        </button>
+        <button
+          type="button"
+          onClick={onDismiss}
+          className="rounded-lg px-3 py-2 text-xs font-semibold border-[1.5px] border-[#ddd3f7] text-[#4c1d95]"
+        >
+          התעלם
+        </button>
+      </div>
+    </div>
+  );
+}
+
 function Toggle({ on, disabled, onClick }) {
   return (
     <button
@@ -82,7 +157,7 @@ function Toggle({ on, disabled, onClick }) {
   );
 }
 
-export default function SettingsPage({ subs }) {
+export default function SettingsPage({ subs, onSubscriptionAdded }) {
   const { user, logout, deleteAccount } = useAuth();
   const [settings, setSettings] = useState(null);
   const [draft, setDraft] = useState(null);
@@ -95,6 +170,10 @@ export default function SettingsPage({ subs }) {
   const [gmailStatus, setGmailStatus] = useState(null);
   const [gmailMessage, setGmailMessage] = useState(null);
   const [disconnecting, setDisconnecting] = useState(false);
+  const [candidates, setCandidates] = useState(null);
+  const [scanning, setScanning] = useState(false);
+  const [scanError, setScanError] = useState(null);
+  const [addingCandidateId, setAddingCandidateId] = useState(null);
   const [searchParams, setSearchParams] = useSearchParams();
   const displayName = user?.name?.trim() || user?.email || "";
   const initial = displayName.charAt(0).toUpperCase();
@@ -126,9 +205,48 @@ export default function SettingsPage({ subs }) {
     try {
       await disconnectGmail();
       setGmailStatus((s) => ({ ...s, connected: false }));
+      setCandidates(null);
     } finally {
       setDisconnecting(false);
     }
+  }
+
+  async function handleScan() {
+    setScanning(true);
+    setScanError(null);
+    try {
+      const result = await scanGmail();
+      setCandidates(result.candidates);
+    } catch (err) {
+      setScanError(err.message);
+    } finally {
+      setScanning(false);
+    }
+  }
+
+  async function handleAddCandidate(candidate, values) {
+    setScanError(null);
+    setAddingCandidateId(candidate.id);
+    try {
+      await createSubscription({
+        name: values.name.trim(),
+        price: parseFloat(values.price),
+        next_renewal_date: values.date,
+        category: values.category || null,
+        icon: "📧",
+        image: null,
+      });
+      setCandidates((prev) => prev.filter((c) => c.id !== candidate.id));
+      onSubscriptionAdded?.();
+    } catch (err) {
+      setScanError(err.message);
+    } finally {
+      setAddingCandidateId(null);
+    }
+  }
+
+  function handleDismissCandidate(id) {
+    setCandidates((prev) => prev.filter((c) => c.id !== id));
   }
 
   useEffect(() => {
@@ -320,7 +438,7 @@ export default function SettingsPage({ subs }) {
           >
             <p className="m-0 text-[15px] font-bold text-[#4c1d95]">ייבוא מנויים ממייל</p>
             <p className="mt-2.5 mb-0 text-[13px] text-[#5b4b7a]">
-              נתחבר לתיבת ה-Gmail שלך כדי שנוכל בהמשך לזהות חיובים חוזרים ולהציע להוסיף אותם.
+              נסרוק את תיבת ה-Gmail שלך לחיפוש חיובים חוזרים ונציע להוסיף אותם כמנויים.
             </p>
             {gmailMessage && (
               <p
@@ -332,19 +450,50 @@ export default function SettingsPage({ subs }) {
               </p>
             )}
             {gmailStatus?.connected ? (
-              <div className="mt-3.5 flex items-center gap-2.5">
-                <span className="rounded-[10px] px-3.5 py-2.5 text-[13px] font-semibold text-[#059669] bg-white border border-[#a7f3d0]">
-                  מחובר ל-Gmail ✓
-                </span>
-                <button
-                  type="button"
-                  onClick={handleDisconnectGmail}
-                  disabled={disconnecting}
-                  className="rounded-[10px] px-3.5 py-2.5 text-[13px] font-semibold text-[#7c3aed] bg-white border border-[#ddd3f7] disabled:opacity-60"
-                >
-                  {disconnecting ? "מנתק..." : "נתק"}
-                </button>
-              </div>
+              <>
+                <div className="mt-3.5 flex items-center gap-2.5 flex-wrap">
+                  <span className="rounded-[10px] px-3.5 py-2.5 text-[13px] font-semibold text-[#059669] bg-white border border-[#a7f3d0]">
+                    מחובר ל-Gmail ✓
+                  </span>
+                  <button
+                    type="button"
+                    onClick={handleScan}
+                    disabled={scanning}
+                    className="rounded-[10px] px-3.5 py-2.5 text-[13px] font-semibold text-white disabled:opacity-60"
+                    style={{ background: "linear-gradient(140deg,#7c3aed,#c026d3)" }}
+                  >
+                    {scanning ? "סורק..." : "סרוק עכשיו"}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleDisconnectGmail}
+                    disabled={disconnecting}
+                    className="rounded-[10px] px-3.5 py-2.5 text-[13px] font-semibold text-[#7c3aed] bg-white border border-[#ddd3f7] disabled:opacity-60"
+                  >
+                    {disconnecting ? "מנתק..." : "נתק"}
+                  </button>
+                </div>
+
+                {scanError && <p className="mt-2.5 mb-0 text-[13px] font-medium text-[#e11d48]">{scanError}</p>}
+
+                {candidates && (
+                  <div className="mt-3.5 flex flex-col gap-2.5">
+                    {candidates.length === 0 ? (
+                      <p className="m-0 text-[13px] text-[#5b4b7a]">לא נמצאו חיובים חדשים בתיבה שלך.</p>
+                    ) : (
+                      candidates.map((candidate) => (
+                        <CandidateCard
+                          key={candidate.id}
+                          candidate={candidate}
+                          adding={addingCandidateId === candidate.id}
+                          onAdd={(values) => handleAddCandidate(candidate, values)}
+                          onDismiss={() => handleDismissCandidate(candidate.id)}
+                        />
+                      ))
+                    )}
+                  </div>
+                )}
+              </>
             ) : (
               <a
                 href={gmailConnectUrl()}
