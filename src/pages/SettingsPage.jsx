@@ -1,16 +1,6 @@
 import { useEffect, useState } from "react";
-import { useSearchParams } from "react-router-dom";
 import PageShell from "../components/PageShell";
-import { useAuth } from "../context/AuthContext";
-import {
-  createSubscription,
-  disconnectGmail,
-  fetchGmailStatus,
-  fetchSettings,
-  gmailConnectUrl,
-  scanGmail,
-  updateSettings,
-} from "../lib/api";
+import { clearAllData, fetchSettings, updateSettings } from "../lib/storage";
 import { CATEGORY_OPTIONS, categoryColor } from "../lib/subscriptions";
 import "./SettingsPage.css";
 
@@ -23,7 +13,6 @@ const CURRENCY_OPTIONS = [
 const TOGGLE_META = [
   { key: "notifyRenewal", title: "התראה לפני חידוש", desc: "פוש 3 ימים לפני מועד החידוש" },
   { key: "notifyMonthly", title: "סיכום חודשי במייל", desc: "בראשון לכל חודש" },
-  { key: "gmail", title: "ייבוא ממייל (Gmail)", desc: "זיהוי אוטומטי של חיובים — בקרוב", disabled: true },
 ];
 
 function ConfirmDialog({ open, title, message, confirmLabel, confirming, error, onConfirm, onCancel }) {
@@ -47,165 +36,30 @@ function ConfirmDialog({ open, title, message, confirmLabel, confirming, error, 
   );
 }
 
-function CandidateCard({ candidate, adding, onAdd, onDismiss }) {
-  const [name, setName] = useState(candidate.name);
-  const [price, setPrice] = useState(String(candidate.price));
-  const [date, setDate] = useState(candidate.suggestedRenewalDate || "");
-  const [category, setCategory] = useState("");
-
-  return (
-    <div className="candidate-card">
-      <div className="candidate-card__head">
-        <p className="candidate-card__name">{candidate.name}</p>
-        {candidate.recurring && <span className="candidate-card__badge">נמצא {candidate.occurrences} פעמים</span>}
-      </div>
-      <div className="candidate-card__grid">
-        <input
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          placeholder="שם המנוי"
-          className="candidate-card__input"
-        />
-        <input
-          type="number"
-          value={price}
-          onChange={(e) => setPrice(e.target.value)}
-          placeholder="מחיר"
-          dir="ltr"
-          className="candidate-card__input candidate-card__input--price"
-        />
-        <input
-          type="date"
-          value={date}
-          onChange={(e) => setDate(e.target.value)}
-          dir="ltr"
-          className="candidate-card__input"
-        />
-        <select value={category} onChange={(e) => setCategory(e.target.value)} className="candidate-card__input">
-          <option value="">קטגוריה</option>
-          {CATEGORY_OPTIONS.map((c) => (
-            <option key={c} value={c}>
-              {c}
-            </option>
-          ))}
-        </select>
-      </div>
-      <div className="candidate-card__actions">
-        <button
-          type="button"
-          onClick={() => onAdd({ name, price, date, category })}
-          disabled={adding}
-          className="candidate-card__add"
-        >
-          {adding ? "מוסיף..." : "הוסף מנוי"}
-        </button>
-        <button type="button" onClick={onDismiss} className="candidate-card__dismiss">
-          התעלם
-        </button>
-      </div>
-    </div>
-  );
-}
-
 function Toggle({ on, disabled, onClick }) {
   return (
-    <button type="button" role="switch" aria-checked={on} disabled={disabled} onClick={onClick} className="toggle-switch" style={{ background: on ? "var(--gradient-primary)" : "#e7e1f4" }}>
+    <button
+      type="button"
+      role="switch"
+      aria-checked={on}
+      disabled={disabled}
+      onClick={onClick}
+      className="toggle-switch"
+      style={{ background: on ? "var(--gradient-primary)" : "#e7e1f4" }}
+    >
       <span className="toggle-switch__knob" style={{ [on ? "left" : "right"]: "3px" }} />
     </button>
   );
 }
 
-export default function SettingsPage({ subs, onSubscriptionAdded }) {
-  const { user, logout, deleteAccount } = useAuth();
+export default function SettingsPage({ subs, onDataCleared }) {
   const [settings, setSettings] = useState(null);
   const [draft, setDraft] = useState(null);
   const [saving, setSaving] = useState(false);
   const [justSaved, setJustSaved] = useState(false);
   const [saveError, setSaveError] = useState(null);
-  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
-  const [deleting, setDeleting] = useState(false);
-  const [deleteError, setDeleteError] = useState(null);
-  const [gmailStatus, setGmailStatus] = useState(null);
-  const [gmailMessage, setGmailMessage] = useState(null);
-  const [disconnecting, setDisconnecting] = useState(false);
-  const [candidates, setCandidates] = useState(null);
-  const [scanning, setScanning] = useState(false);
-  const [scanError, setScanError] = useState(null);
-  const [addingCandidateId, setAddingCandidateId] = useState(null);
-  const [searchParams, setSearchParams] = useSearchParams();
-  const displayName = user?.name?.trim() || user?.email || "";
-  const initial = displayName.charAt(0).toUpperCase();
-
-  useEffect(() => {
-    fetchGmailStatus()
-      .then(setGmailStatus)
-      .catch(() => {});
-  }, []);
-
-  useEffect(() => {
-    const gmailParam = searchParams.get("gmail");
-    if (!gmailParam) return;
-    if (gmailParam === "connected") {
-      setGmailMessage({ type: "success", text: "Gmail חובר בהצלחה" });
-      fetchGmailStatus()
-        .then(setGmailStatus)
-        .catch(() => {});
-    } else {
-      setGmailMessage({ type: "error", text: "החיבור ל-Gmail נכשל, נסה שוב" });
-    }
-    searchParams.delete("gmail");
-    setSearchParams(searchParams, { replace: true });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  async function handleDisconnectGmail() {
-    setDisconnecting(true);
-    try {
-      await disconnectGmail();
-      setGmailStatus((s) => ({ ...s, connected: false }));
-      setCandidates(null);
-    } finally {
-      setDisconnecting(false);
-    }
-  }
-
-  async function handleScan() {
-    setScanning(true);
-    setScanError(null);
-    try {
-      const result = await scanGmail();
-      setCandidates(result.candidates);
-    } catch (err) {
-      setScanError(err.message);
-    } finally {
-      setScanning(false);
-    }
-  }
-
-  async function handleAddCandidate(candidate, values) {
-    setScanError(null);
-    setAddingCandidateId(candidate.id);
-    try {
-      await createSubscription({
-        name: values.name.trim(),
-        price: parseFloat(values.price),
-        next_renewal_date: values.date,
-        category: values.category || null,
-        icon: "📧",
-        image: null,
-      });
-      setCandidates((prev) => prev.filter((c) => c.id !== candidate.id));
-      onSubscriptionAdded?.();
-    } catch (err) {
-      setScanError(err.message);
-    } finally {
-      setAddingCandidateId(null);
-    }
-  }
-
-  function handleDismissCandidate(id) {
-    setCandidates((prev) => prev.filter((c) => c.id !== id));
-  }
+  const [clearConfirmOpen, setClearConfirmOpen] = useState(false);
+  const [clearing, setClearing] = useState(false);
 
   useEffect(() => {
     fetchSettings()
@@ -245,14 +99,14 @@ export default function SettingsPage({ subs, onSubscriptionAdded }) {
     }
   }
 
-  async function handleDeleteAccount() {
-    setDeleting(true);
-    setDeleteError(null);
+  async function handleClearData() {
+    setClearing(true);
     try {
-      await deleteAccount();
-    } catch (err) {
-      setDeleteError(err.message);
-      setDeleting(false);
+      await clearAllData();
+      onDataCleared?.();
+      setClearConfirmOpen(false);
+    } finally {
+      setClearing(false);
     }
   }
 
@@ -266,7 +120,7 @@ export default function SettingsPage({ subs, onSubscriptionAdded }) {
   return (
     <PageShell activePage="settings" bottomCard={{ bottomTitle: "גרסה", bottomValue: "SubTrack 0.4", bottomValueSize: "16px" }}>
       <div>
-        <p className="settings-header__eyebrow">חשבון והתראות</p>
+        <p className="settings-header__eyebrow">התראות והעדפות</p>
         <p className="settings-header__title">הגדרות</p>
       </div>
 
@@ -281,11 +135,7 @@ export default function SettingsPage({ subs, onSubscriptionAdded }) {
                     <p className="toggle-row__title">{t.title}</p>
                     <p className="toggle-row__desc">{t.desc}</p>
                   </div>
-                  <Toggle
-                    on={t.disabled ? false : Boolean(draft?.[t.key])}
-                    disabled={t.disabled || !draft}
-                    onClick={() => toggle(t.key)}
-                  />
+                  <Toggle on={Boolean(draft?.[t.key])} disabled={!draft} onClick={() => toggle(t.key)} />
                 </div>
               ))}
             </div>
@@ -350,91 +200,26 @@ export default function SettingsPage({ subs, onSubscriptionAdded }) {
         </div>
 
         <div className="settings-col">
-          <div className="account-card">
-            <p className="settings-card__title">חשבון</p>
-            <div className="account-card__profile">
-              <div className="account-card__avatar">{initial}</div>
-              <div>
-                <p className="account-card__name">{user?.name || "המשתמש שלי"}</p>
-                <p className="account-card__email" dir="ltr">
-                  {user?.email}
-                </p>
-              </div>
-            </div>
-            <button type="button" onClick={logout} className="account-card__logout">
-              התנתקות
-            </button>
-          </div>
-
-          <div className="gmail-card">
-            <p className="gmail-card__title">ייבוא מנויים ממייל</p>
-            <p className="gmail-card__text">נסרוק את תיבת ה-Gmail שלך לחיפוש חיובים חוזרים ונציע להוסיף אותם כמנויים.</p>
-            {gmailMessage && (
-              <p className={`gmail-card__message ${gmailMessage.type === "error" ? "gmail-card__message--error" : "gmail-card__message--success"}`}>
-                {gmailMessage.text}
-              </p>
-            )}
-            {gmailStatus?.connected ? (
-              <>
-                <div className="gmail-card__actions">
-                  <span className="gmail-card__status">מחובר ל-Gmail ✓</span>
-                  <button type="button" onClick={handleScan} disabled={scanning} className="gmail-card__scan-btn">
-                    {scanning ? "סורק..." : "סרוק עכשיו"}
-                  </button>
-                  <button type="button" onClick={handleDisconnectGmail} disabled={disconnecting} className="gmail-card__disconnect-btn">
-                    {disconnecting ? "מנתק..." : "נתק"}
-                  </button>
-                </div>
-
-                {scanError && <p className="gmail-card__scan-error">{scanError}</p>}
-
-                {candidates && (
-                  <div className="gmail-card__candidates">
-                    {candidates.length === 0 ? (
-                      <p className="gmail-card__empty">לא נמצאו חיובים חדשים בתיבה שלך.</p>
-                    ) : (
-                      candidates.map((candidate) => (
-                        <CandidateCard
-                          key={candidate.id}
-                          candidate={candidate}
-                          adding={addingCandidateId === candidate.id}
-                          onAdd={(values) => handleAddCandidate(candidate, values)}
-                          onDismiss={() => handleDismissCandidate(candidate.id)}
-                        />
-                      ))
-                    )}
-                  </div>
-                )}
-              </>
-            ) : (
-              <a href={gmailConnectUrl()} className="gmail-card__connect-btn">
-                התחבר ל-Gmail
-              </a>
-            )}
-          </div>
-
           <div className="danger-card">
             <p className="danger-card__title">אזור מסוכן</p>
-            <p className="danger-card__text">מחיקת כל המנויים וההיסטוריה. אין דרך חזרה.</p>
-            <button type="button" onClick={() => setDeleteConfirmOpen(true)} className="danger-card__btn">
-              מחק את החשבון
+            <p className="danger-card__text">
+              מחיקת כל המנויים וההגדרות שנשמרו במכשיר הזה. אין דרך חזרה.
+            </p>
+            <button type="button" onClick={() => setClearConfirmOpen(true)} className="danger-card__btn">
+              מחק את כל הנתונים
             </button>
           </div>
         </div>
       </div>
 
       <ConfirmDialog
-        open={deleteConfirmOpen}
-        title="למחוק את החשבון?"
-        message="פעולה זו תמחק לצמיתות את החשבון שלך ואת כל המנויים וההיסטוריה. אי אפשר לשחזר."
-        confirmLabel="כן, מחק את החשבון"
-        confirming={deleting}
-        error={deleteError}
-        onConfirm={handleDeleteAccount}
-        onCancel={() => {
-          setDeleteConfirmOpen(false);
-          setDeleteError(null);
-        }}
+        open={clearConfirmOpen}
+        title="למחוק את כל הנתונים?"
+        message="פעולה זו תמחק לצמיתות את כל המנויים וההגדרות שנשמרו במכשיר הזה. אי אפשר לשחזר."
+        confirmLabel="כן, מחק הכל"
+        confirming={clearing}
+        onConfirm={handleClearData}
+        onCancel={() => setClearConfirmOpen(false)}
       />
     </PageShell>
   );

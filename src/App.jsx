@@ -5,8 +5,6 @@ import SubscriptionsPage from "./pages/SubscriptionsPage";
 import RenewalsPage from "./pages/RenewalsPage";
 import ExpensesPage from "./pages/ExpensesPage";
 import SettingsPage from "./pages/SettingsPage";
-import LoginPage from "./pages/LoginPage";
-import { useAuth } from "./context/AuthContext";
 import { EMPTY_FORM, SORT_CYCLE, SORT_LABELS, daysUntil, round2, sortSubs } from "./lib/subscriptions";
 import {
   fetchSubscriptions,
@@ -15,24 +13,9 @@ import {
   deleteSubscription,
   fromApiSubscription,
   toApiPayload,
-} from "./lib/api";
-import "./App.css";
+} from "./lib/storage";
 
 export default function App() {
-  const { user, loading: authLoading } = useAuth();
-
-  if (authLoading) {
-    return <div className="app-loading" />;
-  }
-
-  if (!user) {
-    return <LoginPage />;
-  }
-
-  return <AppShell />;
-}
-
-function AppShell() {
   const [subs, setSubs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -237,7 +220,7 @@ function AppShell() {
           path="/expenses"
           element={<ExpensesPage subs={subs} loading={loading} error={error} onRetry={retry} />}
         />
-        <Route path="/settings" element={<SettingsPage subs={subs} onSubscriptionAdded={retry} />} />
+        <Route path="/settings" element={<SettingsPage subs={subs} onDataCleared={retry} />} />
       </Routes>
     </BrowserRouter>
   );
