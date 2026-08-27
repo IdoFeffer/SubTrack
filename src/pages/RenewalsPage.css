@@ -84,7 +84,7 @@
   display: grid;
   grid-template-columns: repeat(7, 1fr);
   gap: 8px;
-  min-width: 320px;
+  width: 100%;
 }
 
 .renewals-calendar__weekday {
@@ -102,6 +102,8 @@
   flex-direction: column;
   gap: 6px;
   min-height: 64px;
+  min-width: 0;
+  overflow: hidden;
 }
 
 .renewals-calendar__day {
@@ -117,6 +119,8 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  min-width: 0;
+  width: 100%;
 }
 
 .renewals-calendar__more {
