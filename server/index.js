@@ -6,6 +6,7 @@ import { fileURLToPath } from "url";
 import { initSchema } from "./db.js";
 import subscriptionsRouter from "./routes/subscriptions.js";
 import authRouter from "./routes/auth.js";
+import settingsRouter from "./routes/settings.js";
 
 if (!process.env.JWT_SECRET) {
   throw new Error("JWT_SECRET is not set (see server/.env.example)");
@@ -23,6 +24,7 @@ app.use(cookieParser());
 
 app.use("/api/auth", authRouter);
 app.use("/api/subscriptions", subscriptionsRouter);
+app.use("/api/settings", settingsRouter);
 
 app.use(express.static(distPath));
 

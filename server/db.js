@@ -44,4 +44,10 @@ export async function initSchema() {
   await db.execute(
     "CREATE UNIQUE INDEX IF NOT EXISTS idx_users_google_id ON users(google_id) WHERE google_id IS NOT NULL"
   );
+
+  try {
+    await db.execute("ALTER TABLE users ADD COLUMN settings TEXT");
+  } catch {
+    // column already exists
+  }
 }

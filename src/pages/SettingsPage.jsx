@@ -1,12 +1,19 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import PageShell from "../components/PageShell";
 import { useAuth } from "../context/AuthContext";
+import { fetchSettings, updateSettings } from "../lib/api";
 import { CATEGORY_OPTIONS, categoryColor } from "../lib/subscriptions";
 
-const INITIAL_TOGGLES = [
-  { key: "renewal", title: "התראה לפני חידוש", desc: "פוש 3 ימים לפני מועד החידוש", on: true },
-  { key: "monthly", title: "סיכום חודשי במייל", desc: "בראשון לכל חודש", on: true },
-  { key: "gmail", title: "ייבוא ממייל (Gmail)", desc: "זיהוי אוטומטי של חיובים — בקרוב", on: false, disabled: true },
+const CURRENCY_OPTIONS = [
+  { value: "₪", label: "שקל (₪)" },
+  { value: "$", label: "דולר ($)" },
+  { value: "€", label: "יורו (€)" },
+];
+
+const TOGGLE_META = [
+  { key: "notifyRenewal", title: "התראה לפני חידוש", desc: "פוש 3 ימים לפני מועד החידוש" },
+  { key: "notifyMonthly", title: "סיכום חודשי במייל", desc: "בראשון לכל חודש" },
+  { key: "gmail", title: "ייבוא ממייל (Gmail)", desc: "זיהוי אוטומטי של חיובים — בקרוב", disabled: true },
 ];
 
 function Toggle({ on, disabled, onClick }) {
@@ -30,12 +37,50 @@ function Toggle({ on, disabled, onClick }) {
 
 export default function SettingsPage({ subs }) {
   const { user, logout } = useAuth();
-  const [toggles, setToggles] = useState(INITIAL_TOGGLES);
+  const [settings, setSettings] = useState(null);
+  const [draft, setDraft] = useState(null);
+  const [saving, setSaving] = useState(false);
+  const [justSaved, setJustSaved] = useState(false);
+  const [saveError, setSaveError] = useState(null);
   const displayName = user?.name?.trim() || user?.email || "";
   const initial = displayName.charAt(0).toUpperCase();
 
+  useEffect(() => {
+    fetchSettings()
+      .then((s) => {
+        setSettings(s);
+        setDraft(s);
+      })
+      .catch(() => {});
+  }, []);
+
+  const isDirty = draft && settings && JSON.stringify(draft) !== JSON.stringify(settings);
+
   function toggle(key) {
-    setToggles((prev) => prev.map((t) => (t.key === key && !t.disabled ? { ...t, on: !t.on } : t)));
+    if (!draft) return;
+    setDraft((prev) => ({ ...prev, [key]: !prev[key] }));
+  }
+
+  function setDraftField(key, value) {
+    if (!draft) return;
+    setDraft((prev) => ({ ...prev, [key]: value }));
+  }
+
+  async function handleSave() {
+    if (!draft || !isDirty) return;
+    setSaving(true);
+    setSaveError(null);
+    try {
+      const saved = await updateSettings(draft);
+      setSettings(saved);
+      setDraft(saved);
+      setJustSaved(true);
+      setTimeout(() => setJustSaved(false), 2000);
+    } catch (err) {
+      setSaveError(err.message);
+    } finally {
+      setSaving(false);
+    }
   }
 
   const uniqueCategories = [];
@@ -60,7 +105,7 @@ export default function SettingsPage({ subs }) {
           >
             <p className="m-0 mb-1 text-[15px] font-bold text-[#1b1033]">התראות</p>
             <div className="flex flex-col">
-              {toggles.map((t) => (
+              {TOGGLE_META.map((t) => (
                 <div
                   key={t.key}
                   className="flex items-center justify-between gap-4 py-4 border-b border-[#f4f0fb] last:border-b-0"
@@ -69,7 +114,11 @@ export default function SettingsPage({ subs }) {
                     <p className="m-0 text-sm font-semibold text-[#1b1033]">{t.title}</p>
                     <p className="mt-0.5 mb-0 text-xs text-[#8b7cae]">{t.desc}</p>
                   </div>
-                  <Toggle on={t.on} disabled={t.disabled} onClick={() => toggle(t.key)} />
+                  <Toggle
+                    on={t.disabled ? false : Boolean(draft?.[t.key])}
+                    disabled={t.disabled || !draft}
+                    onClick={() => toggle(t.key)}
+                  />
                 </div>
               ))}
             </div>
@@ -80,17 +129,31 @@ export default function SettingsPage({ subs }) {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
               <div>
                 <label className="block text-xs font-semibold mb-1.5 text-[#6b5b8a]">מטבע</label>
-                <select className="w-full rounded-xl px-3.5 py-3 text-sm border-[1.5px] border-[#ddd3f7] bg-[#faf8ff] text-[#1b1033] outline-none focus:border-[#7c3aed] focus:bg-white">
-                  <option>שקל (₪)</option>
-                  <option>דולר ($)</option>
-                  <option>יורו (€)</option>
+                <select
+                  value={draft?.currency ?? "₪"}
+                  disabled={!draft}
+                  onChange={(e) => setDraftField("currency", e.target.value)}
+                  className="w-full rounded-xl px-3.5 py-3 text-sm border-[1.5px] border-[#ddd3f7] bg-[#faf8ff] text-[#1b1033] outline-none focus:border-[#7c3aed] focus:bg-white"
+                >
+                  {CURRENCY_OPTIONS.map((c) => (
+                    <option key={c.value} value={c.value}>
+                      {c.label}
+                    </option>
+                  ))}
                 </select>
               </div>
               <div>
                 <label className="block text-xs font-semibold mb-1.5 text-[#6b5b8a]">יום תחילת חודש</label>
-                <select className="w-full rounded-xl px-3.5 py-3 text-sm border-[1.5px] border-[#ddd3f7] bg-[#faf8ff] text-[#1b1033] outline-none focus:border-[#7c3aed] focus:bg-white">
+                <select
+                  value={draft?.monthStartDay ?? 1}
+                  disabled={!draft}
+                  onChange={(e) => setDraftField("monthStartDay", Number(e.target.value))}
+                  className="w-full rounded-xl px-3.5 py-3 text-sm border-[1.5px] border-[#ddd3f7] bg-[#faf8ff] text-[#1b1033] outline-none focus:border-[#7c3aed] focus:bg-white"
+                >
                   {Array.from({ length: 28 }, (_, i) => i + 1).map((d) => (
-                    <option key={d}>{d} בחודש</option>
+                    <option key={d} value={d}>
+                      {d} בחודש
+                    </option>
                   ))}
                 </select>
               </div>
@@ -114,6 +177,20 @@ export default function SettingsPage({ subs }) {
                 </span>
               </div>
             </div>
+          </div>
+
+          <div className="flex items-center gap-3">
+            <button
+              type="button"
+              onClick={handleSave}
+              disabled={!isDirty || saving}
+              className="rounded-xl px-5 py-3 text-sm font-semibold text-white disabled:opacity-50"
+              style={{ background: "linear-gradient(140deg,#7c3aed,#c026d3)" }}
+            >
+              {saving ? "שומר..." : "שמור הגדרות"}
+            </button>
+            {justSaved && <span className="text-sm font-semibold text-[#059669]">נשמר ✓</span>}
+            {saveError && <span className="text-sm font-medium text-[#e11d48]">{saveError}</span>}
           </div>
         </div>
 

@@ -72,3 +72,11 @@ export function updateSubscription(id, payload) {
 export function deleteSubscription(id) {
   return request(`/subscriptions/${id}`, { method: "DELETE" });
 }
+
+export function fetchSettings() {
+  return request("/settings");
+}
+
+export function updateSettings(partial) {
+  return request("/settings", { method: "PUT", body: JSON.stringify(partial) });
+}

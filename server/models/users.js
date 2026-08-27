@@ -1,5 +1,21 @@
 import { db } from "../db.js";
 
+const DEFAULT_SETTINGS = {
+  notifyRenewal: true,
+  notifyMonthly: true,
+  currency: "₪",
+  monthStartDay: 1,
+};
+
+function parseSettings(raw) {
+  if (!raw) return { ...DEFAULT_SETTINGS };
+  try {
+    return { ...DEFAULT_SETTINGS, ...JSON.parse(raw) };
+  } catch {
+    return { ...DEFAULT_SETTINGS };
+  }
+}
+
 function toUser(row) {
   return {
     id: row.id,
@@ -48,6 +64,24 @@ export async function linkGoogleId(id, googleId) {
     args: [googleId, id],
   });
   return toUser(result.rows[0]);
+}
+
+export async function getSettings(userId) {
+  const result = await db.execute({
+    sql: "SELECT settings FROM users WHERE id = ?",
+    args: [userId],
+  });
+  return result.rows[0] ? parseSettings(result.rows[0].settings) : null;
+}
+
+export async function updateSettings(userId, partialSettings) {
+  const current = (await getSettings(userId)) ?? DEFAULT_SETTINGS;
+  const merged = { ...current, ...partialSettings };
+  await db.execute({
+    sql: "UPDATE users SET settings = ? WHERE id = ?",
+    args: [JSON.stringify(merged), userId],
+  });
+  return merged;
 }
 
 export { toUser };
