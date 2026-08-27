@@ -75,7 +75,7 @@ export default function ExpensesPage({ subs, loading, error, onRetry }) {
               style={{ boxShadow: "0 16px 36px -28px rgba(27,16,51,.7)" }}
             >
               <p className="m-0 text-[15px] font-bold text-[#1b1033]">מגמת הוצאות</p>
-              <div className="grid grid-cols-6 gap-3 sm:gap-[18px] items-end h-[180px]">
+              <div className="grid grid-cols-6 gap-3 sm:gap-[18px] items-end h-[280px]">
                 {months.map((m) => (
                   <div key={m.label} className="flex flex-col items-center gap-2.5 h-full justify-end">
                     <p className="m-0 text-[13px] font-bold text-[#1b1033]" dir="ltr">

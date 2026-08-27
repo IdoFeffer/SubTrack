@@ -44,6 +44,7 @@ function AppShell() {
   const [errors, setErrors] = useState({});
   const [saveError, setSaveError] = useState(null);
   const [sortBy, setSortBy] = useState("date");
+  const [sortDir, setSortDir] = useState("asc");
 
   const addTriggerRef = useRef(null);
 
@@ -75,7 +76,7 @@ function AppShell() {
     ? subs.reduce((min, s) => (daysUntil(s.nextRenewal) < daysUntil(min.nextRenewal) ? s : min), subs[0])
     : null;
   const mobileAlertSub = soonestSub && daysUntil(soonestSub.nextRenewal) <= 3 ? soonestSub : null;
-  const sortedSubs = useMemo(() => sortSubs(subs, sortBy), [subs, sortBy]);
+  const sortedSubs = useMemo(() => sortSubs(subs, sortBy, sortDir), [subs, sortBy, sortDir]);
 
   function validate() {
     const next = {};
@@ -171,6 +172,16 @@ function AppShell() {
 
   function cycleSort() {
     setSortBy((prev) => SORT_CYCLE[(SORT_CYCLE.indexOf(prev) + 1) % SORT_CYCLE.length]);
+    setSortDir("asc");
+  }
+
+  function handleSort(field) {
+    if (field === sortBy) {
+      setSortDir((d) => (d === "asc" ? "desc" : "asc"));
+    } else {
+      setSortBy(field);
+      setSortDir("asc");
+    }
   }
 
   function retry() {
@@ -189,8 +200,11 @@ function AppShell() {
     nextRenewalDays,
     soonestSub,
     alertSub: mobileAlertSub,
+    sortBy,
+    sortDir,
     sortLabel: SORT_LABELS[sortBy],
     onCycleSort: cycleSort,
+    onSort: handleSort,
     view,
     modalOpen,
     editingId,

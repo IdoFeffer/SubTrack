@@ -248,6 +248,22 @@ function TabletShell({
   );
 }
 
+function SortHeader({ label, field, sortBy, sortDir, onSort, align }) {
+  const active = sortBy === field;
+  return (
+    <button
+      type="button"
+      onClick={() => onSort(field)}
+      className={`flex items-center gap-1 text-xs font-semibold ${align === "left" ? "justify-start" : ""} ${
+        active ? "text-[#7c3aed]" : "text-[#8b7cae]"
+      }`}
+    >
+      {label}
+      {active && <span className="text-[9px]">{sortDir === "asc" ? "▲" : "▼"}</span>}
+    </button>
+  );
+}
+
 function DesktopShell({
   subs,
   sortedSubs,
@@ -259,8 +275,9 @@ function DesktopShell({
   count,
   nextRenewalDays,
   soonestSub,
-  sortLabel,
-  onCycleSort,
+  sortBy,
+  sortDir,
+  onSort,
   modalOpen,
   editingId,
   form,
@@ -290,12 +307,6 @@ function DesktopShell({
             <p className="mt-1 mb-0 text-[30px] font-bold text-[#1b1033]">המנויים שלי</p>
           </div>
           <div className="flex gap-2.5">
-            <button
-              onClick={onCycleSort}
-              className="rounded-xl px-4 py-[11px] text-sm font-medium border-[1.5px] border-[#ddd3f7] bg-white text-[#4c1d95]"
-            >
-              מיון: {sortLabel}
-            </button>
             <button
               onClick={(e) => {
                 addTriggerRef.current = e.currentTarget;
@@ -330,13 +341,13 @@ function DesktopShell({
             style={{ boxShadow: "0 16px 36px -28px rgba(27,16,51,.7)" }}
           >
             <div
-              className="grid px-4 py-3.5 text-xs font-semibold text-[#8b7cae]"
+              className="grid px-4 py-3.5"
               style={{ gridTemplateColumns: "1fr 130px 120px 110px" }}
             >
-              <span>מנוי</span>
-              <span>קטגוריה</span>
-              <span>חידוש הבא</span>
-              <span className="text-left">מחיר</span>
+              <SortHeader label="מנוי" field="name" sortBy={sortBy} sortDir={sortDir} onSort={onSort} />
+              <SortHeader label="קטגוריה" field="category" sortBy={sortBy} sortDir={sortDir} onSort={onSort} />
+              <SortHeader label="חידוש הבא" field="date" sortBy={sortBy} sortDir={sortDir} onSort={onSort} />
+              <SortHeader label="מחיר" field="price" sortBy={sortBy} sortDir={sortDir} onSort={onSort} align="left" />
             </div>
             <div className="flex flex-col">
               <ListBody

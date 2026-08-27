@@ -68,15 +68,19 @@ export function fileToDataUrl(file) {
   });
 }
 
-export function sortSubs(subs, sortBy) {
+export function sortSubs(subs, sortBy, direction = "asc") {
   const sorted = [...subs];
+  let compare;
   if (sortBy === "price") {
-    sorted.sort((a, b) => a.price - b.price);
+    compare = (a, b) => a.price - b.price;
   } else if (sortBy === "name") {
-    sorted.sort((a, b) => a.name.localeCompare(b.name, "he"));
+    compare = (a, b) => a.name.localeCompare(b.name, "he");
+  } else if (sortBy === "category") {
+    compare = (a, b) => (a.category || "אחר").localeCompare(b.category || "אחר", "he");
   } else {
-    sorted.sort((a, b) => new Date(a.nextRenewal) - new Date(b.nextRenewal));
+    compare = (a, b) => new Date(a.nextRenewal) - new Date(b.nextRenewal);
   }
+  sorted.sort((a, b) => (direction === "desc" ? -compare(a, b) : compare(a, b)));
   return sorted;
 }
 
@@ -84,9 +88,10 @@ export const SORT_LABELS = {
   date: "תאריך חידוש",
   price: "מחיר",
   name: "שם",
+  category: "קטגוריה",
 };
 
-export const SORT_CYCLE = ["date", "price", "name"];
+export const SORT_CYCLE = ["date", "price", "name", "category"];
 
 export const WEEKDAY_LABELS = ["א", "ב", "ג", "ד", "ה", "ו", "ש"];
 
