@@ -84,3 +84,15 @@ export function fetchSettings() {
 export function updateSettings(partial) {
   return request("/settings", { method: "PUT", body: JSON.stringify(partial) });
 }
+
+export function fetchGmailStatus() {
+  return request("/gmail/status");
+}
+
+export function gmailConnectUrl() {
+  return `${API_BASE}/gmail/connect`;
+}
+
+export function disconnectGmail() {
+  return request("/gmail/disconnect", { method: "POST" });
+}

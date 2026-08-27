@@ -84,6 +84,36 @@ export async function updateSettings(userId, partialSettings) {
   return merged;
 }
 
+export async function setGmailToken(userId, refreshToken) {
+  await db.execute({
+    sql: "UPDATE users SET gmail_refresh_token = ? WHERE id = ?",
+    args: [refreshToken, userId],
+  });
+}
+
+export async function hasGmailToken(userId) {
+  const result = await db.execute({
+    sql: "SELECT gmail_refresh_token FROM users WHERE id = ?",
+    args: [userId],
+  });
+  return Boolean(result.rows[0]?.gmail_refresh_token);
+}
+
+export async function getGmailToken(userId) {
+  const result = await db.execute({
+    sql: "SELECT gmail_refresh_token FROM users WHERE id = ?",
+    args: [userId],
+  });
+  return result.rows[0]?.gmail_refresh_token ?? null;
+}
+
+export async function clearGmailToken(userId) {
+  await db.execute({
+    sql: "UPDATE users SET gmail_refresh_token = NULL WHERE id = ?",
+    args: [userId],
+  });
+}
+
 export async function remove(id) {
   await db.execute({
     sql: "DELETE FROM users WHERE id = ?",

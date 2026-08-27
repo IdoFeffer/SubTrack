@@ -1,7 +1,14 @@
 import { useEffect, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import PageShell from "../components/PageShell";
 import { useAuth } from "../context/AuthContext";
-import { fetchSettings, updateSettings } from "../lib/api";
+import {
+  disconnectGmail,
+  fetchGmailStatus,
+  fetchSettings,
+  gmailConnectUrl,
+  updateSettings,
+} from "../lib/api";
 import { CATEGORY_OPTIONS, categoryColor } from "../lib/subscriptions";
 
 const CURRENCY_OPTIONS = [
@@ -85,8 +92,44 @@ export default function SettingsPage({ subs }) {
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [deleteError, setDeleteError] = useState(null);
+  const [gmailStatus, setGmailStatus] = useState(null);
+  const [gmailMessage, setGmailMessage] = useState(null);
+  const [disconnecting, setDisconnecting] = useState(false);
+  const [searchParams, setSearchParams] = useSearchParams();
   const displayName = user?.name?.trim() || user?.email || "";
   const initial = displayName.charAt(0).toUpperCase();
+
+  useEffect(() => {
+    fetchGmailStatus()
+      .then(setGmailStatus)
+      .catch(() => {});
+  }, []);
+
+  useEffect(() => {
+    const gmailParam = searchParams.get("gmail");
+    if (!gmailParam) return;
+    if (gmailParam === "connected") {
+      setGmailMessage({ type: "success", text: "Gmail חובר בהצלחה" });
+      fetchGmailStatus()
+        .then(setGmailStatus)
+        .catch(() => {});
+    } else {
+      setGmailMessage({ type: "error", text: "החיבור ל-Gmail נכשל, נסה שוב" });
+    }
+    searchParams.delete("gmail");
+    setSearchParams(searchParams, { replace: true });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  async function handleDisconnectGmail() {
+    setDisconnecting(true);
+    try {
+      await disconnectGmail();
+      setGmailStatus((s) => ({ ...s, connected: false }));
+    } finally {
+      setDisconnecting(false);
+    }
+  }
 
   useEffect(() => {
     fetchSettings()
@@ -277,11 +320,39 @@ export default function SettingsPage({ subs }) {
           >
             <p className="m-0 text-[15px] font-bold text-[#4c1d95]">ייבוא מנויים ממייל</p>
             <p className="mt-2.5 mb-0 text-[13px] text-[#5b4b7a]">
-              נזהה חיובים חוזרים בתיבה שלך ונציע להוסיף אותם. בקרוב.
+              נתחבר לתיבת ה-Gmail שלך כדי שנוכל בהמשך לזהות חיובים חוזרים ולהציע להוסיף אותם.
             </p>
-            <div className="mt-3.5 inline-block rounded-[10px] px-3.5 py-2.5 text-[13px] font-semibold text-white bg-[#7c3aed]">
-              הצטרף לרשימת המתנה
-            </div>
+            {gmailMessage && (
+              <p
+                className={`mt-2.5 mb-0 text-[13px] font-semibold ${
+                  gmailMessage.type === "error" ? "text-[#e11d48]" : "text-[#059669]"
+                }`}
+              >
+                {gmailMessage.text}
+              </p>
+            )}
+            {gmailStatus?.connected ? (
+              <div className="mt-3.5 flex items-center gap-2.5">
+                <span className="rounded-[10px] px-3.5 py-2.5 text-[13px] font-semibold text-[#059669] bg-white border border-[#a7f3d0]">
+                  מחובר ל-Gmail ✓
+                </span>
+                <button
+                  type="button"
+                  onClick={handleDisconnectGmail}
+                  disabled={disconnecting}
+                  className="rounded-[10px] px-3.5 py-2.5 text-[13px] font-semibold text-[#7c3aed] bg-white border border-[#ddd3f7] disabled:opacity-60"
+                >
+                  {disconnecting ? "מנתק..." : "נתק"}
+                </button>
+              </div>
+            ) : (
+              <a
+                href={gmailConnectUrl()}
+                className="mt-3.5 inline-block rounded-[10px] px-3.5 py-2.5 text-[13px] font-semibold text-white bg-[#7c3aed]"
+              >
+                התחבר ל-Gmail
+              </a>
+            )}
           </div>
 
           <div className="bg-white border border-[#fecdd3] rounded-[20px] p-5">

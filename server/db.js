@@ -50,4 +50,10 @@ export async function initSchema() {
   } catch {
     // column already exists
   }
+
+  try {
+    await db.execute("ALTER TABLE users ADD COLUMN gmail_refresh_token TEXT");
+  } catch {
+    // column already exists
+  }
 }
