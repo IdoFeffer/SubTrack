@@ -9,12 +9,16 @@ import { COOKIE_NAME, signToken, requireAuth } from "../middleware/auth.js";
 const router = Router();
 const googleClient = process.env.GOOGLE_CLIENT_ID ? new OAuth2Client(process.env.GOOGLE_CLIENT_ID) : null;
 
-const cookieOptions = {
+const baseCookieOptions = {
   httpOnly: true,
   secure: process.env.NODE_ENV === "production",
   sameSite: "lax",
-  maxAge: 30 * 24 * 60 * 60 * 1000,
 };
+const PERSISTENT_MAX_AGE = 30 * 24 * 60 * 60 * 1000;
+
+function cookieOptionsFor(remember) {
+  return remember ? { ...baseCookieOptions, maxAge: PERSISTENT_MAX_AGE } : baseCookieOptions;
+}
 
 function validateCredentials(email, password) {
   if (!email || typeof email !== "string" || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
@@ -42,7 +46,7 @@ router.post("/signup", async (req, res, next) => {
     const user = await Users.create({ email: normalizedEmail, passwordHash, name: name?.trim() || null });
 
     const token = signToken(user.id);
-    res.cookie(COOKIE_NAME, token, cookieOptions);
+    res.cookie(COOKIE_NAME, token, cookieOptionsFor(true));
     res.status(201).json(user);
   } catch (err) {
     next(err);
@@ -51,7 +55,7 @@ router.post("/signup", async (req, res, next) => {
 
 router.post("/login", async (req, res, next) => {
   try {
-    const { email, password } = req.body;
+    const { email, password, remember } = req.body;
     if (!email || !password) {
       return res.status(400).json({ error: "יש להזין אימייל וסיסמה" });
     }
@@ -68,7 +72,7 @@ router.post("/login", async (req, res, next) => {
     }
 
     const token = signToken(row.id);
-    res.cookie(COOKIE_NAME, token, cookieOptions);
+    res.cookie(COOKIE_NAME, token, cookieOptionsFor(remember !== false));
     res.json(Users.toUser(row));
   } catch (err) {
     next(err);
@@ -117,7 +121,7 @@ router.post("/google", async (req, res, next) => {
     }
 
     const token = signToken(user.id);
-    res.cookie(COOKIE_NAME, token, cookieOptions);
+    res.cookie(COOKIE_NAME, token, cookieOptionsFor(true));
     res.json(user);
   } catch (err) {
     next(err);
@@ -125,8 +129,7 @@ router.post("/google", async (req, res, next) => {
 });
 
 router.post("/logout", (req, res) => {
-  const { maxAge, ...clearCookieOptions } = cookieOptions;
-  res.clearCookie(COOKIE_NAME, clearCookieOptions);
+  res.clearCookie(COOKIE_NAME, baseCookieOptions);
   res.status(204).end();
 });
 
@@ -144,8 +147,7 @@ router.delete("/me", requireAuth, async (req, res, next) => {
   try {
     await Subscriptions.removeAllForUser(req.userId);
     await Users.remove(req.userId);
-    const { maxAge, ...clearCookieOptions } = cookieOptions;
-    res.clearCookie(COOKIE_NAME, clearCookieOptions);
+    res.clearCookie(COOKIE_NAME, baseCookieOptions);
     res.status(204).end();
   } catch (err) {
     next(err);

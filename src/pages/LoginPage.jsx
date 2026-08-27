@@ -70,6 +70,7 @@ export default function LoginPage() {
   const [errors, setErrors] = useState({});
   const [submitError, setSubmitError] = useState(null);
   const [submitting, setSubmitting] = useState(false);
+  const [remember, setRemember] = useState(true);
 
   async function handleGoogleCredential(credential) {
     setSubmitError(null);
@@ -99,7 +100,7 @@ export default function LoginPage() {
     setSubmitting(true);
     try {
       if (mode === "login") {
-        await login({ email, password });
+        await login({ email, password, remember });
       } else {
         await signup({ email, password, name });
       }
@@ -174,6 +175,18 @@ export default function LoginPage() {
               error={errors.password}
               autoComplete={mode === "login" ? "current-password" : "new-password"}
             />
+
+            {mode === "login" && (
+              <label className="flex items-center gap-2 text-sm text-[#4c1d95] cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={remember}
+                  onChange={(e) => setRemember(e.target.checked)}
+                  className="w-4 h-4 rounded border-[1.5px] border-[#ddd3f7] accent-[#7c3aed]"
+                />
+                הישאר מחובר
+              </label>
+            )}
 
             {submitError && (
               <div className="rounded-xl px-4 py-3 bg-[#fff1f2] border border-[#fecdd3]">

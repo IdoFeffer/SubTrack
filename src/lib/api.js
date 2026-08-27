@@ -18,8 +18,8 @@ export function signup({ email, password, name }) {
   return request("/auth/signup", { method: "POST", body: JSON.stringify({ email, password, name }) });
 }
 
-export function login({ email, password }) {
-  return request("/auth/login", { method: "POST", body: JSON.stringify({ email, password }) });
+export function login({ email, password, remember = true }) {
+  return request("/auth/login", { method: "POST", body: JSON.stringify({ email, password, remember }) });
 }
 
 export function loginWithGoogle(credential) {
