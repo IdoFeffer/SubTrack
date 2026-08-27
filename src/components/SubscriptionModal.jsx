@@ -1,6 +1,7 @@
 import { useEffect, useRef } from "react";
 import { X } from "lucide-react";
 import FormFields from "./FormFields";
+import "./SubscriptionModal.css";
 
 export default function SubscriptionModal({
   open,
@@ -52,53 +53,31 @@ export default function SubscriptionModal({
   if (!open) return null;
 
   return (
-    <div
-      className="absolute inset-0 flex items-center justify-center p-10 rounded-[20px]"
-      style={{ background: "rgba(27,16,51,.45)", animation: "subtrack-scrim-in 150ms ease-out" }}
-      onClick={onClose}
-    >
+    <div className="subscription-modal__scrim" onClick={onClose}>
       <div
         ref={dialogRef}
         role="dialog"
         aria-modal="true"
         aria-labelledby="subtrack-modal-title"
-        className="w-[440px] max-w-full bg-white rounded-[22px] overflow-hidden"
-        style={{
-          boxShadow: "0 40px 80px -30px rgba(27,16,51,.7)",
-          animation: "subtrack-dialog-in 180ms ease-out",
-        }}
+        className="subscription-modal__dialog"
         onClick={(e) => e.stopPropagation()}
       >
-        <div
-          className="flex items-center justify-between px-6 py-5 text-white"
-          style={{ background: "linear-gradient(140deg,#7c3aed,#c026d3)" }}
-        >
-          <p id="subtrack-modal-title" className="m-0 text-lg font-bold">
+        <div className="subscription-modal__header">
+          <p id="subtrack-modal-title" className="subscription-modal__title">
             {isEditing ? "עריכת מנוי" : "מנוי חדש"}
           </p>
-          <button
-            onClick={onClose}
-            aria-label="סגור"
-            className="w-8 h-8 rounded-full flex items-center justify-center bg-[rgba(255,255,255,.2)]"
-          >
+          <button onClick={onClose} aria-label="סגור" className="subscription-modal__close">
             <X size={16} />
           </button>
         </div>
-        <div className="p-6 flex flex-col gap-4 max-h-[75vh] overflow-y-auto">
+        <div className="subscription-modal__body">
           <FormFields form={form} setForm={setForm} errors={errors} />
-          {saveError && <p className="m-0 text-sm font-medium text-[#e11d48]">{saveError}</p>}
-          <div className="flex gap-2.5 mt-1">
-            <button
-              onClick={onSave}
-              className="flex-1 rounded-[13px] py-3.5 text-white text-[15px] font-bold"
-              style={{ background: "linear-gradient(140deg,#7c3aed,#c026d3)" }}
-            >
+          {saveError && <p className="subscription-modal__error">{saveError}</p>}
+          <div className="subscription-modal__actions">
+            <button onClick={onSave} className="subscription-modal__save">
               {isEditing ? "שמור שינויים" : "הוסף מנוי"}
             </button>
-            <button
-              onClick={onClose}
-              className="rounded-[13px] px-5 py-3.5 text-[15px] font-semibold border-[1.5px] border-[#ddd3f7] text-[#4c1d95]"
-            >
+            <button onClick={onClose} className="subscription-modal__cancel">
               ביטול
             </button>
           </div>

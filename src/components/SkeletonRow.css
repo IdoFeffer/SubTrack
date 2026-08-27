@@ -1,0 +1,5 @@
+.skeleton-row {
+  border-radius: 16px;
+  background: var(--color-border-soft);
+  animation: subtrack-pulse 1.5s ease-in-out infinite;
+}

@@ -1,0 +1,54 @@
+.metric-card {
+  border-radius: 18px;
+}
+
+.metric-card__label {
+  margin: 0 0 8px;
+}
+
+.metric-card__value {
+  margin: 0;
+  font-weight: 700;
+  text-align: right;
+}
+
+.metric-card--gradient {
+  background: var(--gradient-primary);
+}
+.metric-card--gradient .metric-card__label {
+  color: rgba(255, 255, 255, 0.85);
+}
+.metric-card--gradient .metric-card__value {
+  color: #fff;
+}
+
+.metric-card--teal {
+  background: var(--color-teal-bg);
+  border: 1px solid var(--color-teal-border);
+}
+.metric-card--teal .metric-card__label,
+.metric-card--teal .metric-card__value {
+  color: var(--color-teal);
+}
+
+.metric-card--rose {
+  background: var(--color-danger-bg);
+  border: 1px solid var(--color-danger-border);
+}
+.metric-card--rose .metric-card__label {
+  color: var(--color-danger-dark);
+}
+.metric-card--rose .metric-card__value {
+  color: var(--color-danger);
+}
+
+.metric-card--white {
+  background: #fff;
+  border: 1px solid var(--color-border);
+}
+.metric-card--white .metric-card__label {
+  color: var(--color-muted2);
+}
+.metric-card--white .metric-card__value {
+  color: var(--color-ink);
+}

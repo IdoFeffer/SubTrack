@@ -16,12 +16,13 @@ import {
   fromApiSubscription,
   toApiPayload,
 } from "./lib/api";
+import "./App.css";
 
 export default function App() {
   const { user, loading: authLoading } = useAuth();
 
   if (authLoading) {
-    return <div className="min-h-screen bg-[linear-gradient(180deg,#faf5ff,#fdf2f8)]" />;
+    return <div className="app-loading" />;
   }
 
   if (!user) {

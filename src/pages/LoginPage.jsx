@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { useAuth } from "../context/AuthContext";
+import "./LoginPage.css";
 
 const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID;
 
@@ -34,11 +35,11 @@ function GoogleSignInButton({ onCredential }) {
   if (!GOOGLE_CLIENT_ID) return null;
 
   return (
-    <div className="flex flex-col items-center gap-4">
-      <div className="w-full flex items-center gap-3">
-        <div className="h-px flex-1 bg-[#ece7f7]" />
-        <span className="text-xs text-[#a99cc4]">או</span>
-        <div className="h-px flex-1 bg-[#ece7f7]" />
+    <div className="google-signin__inner">
+      <div className="google-signin__divider">
+        <div className="google-signin__divider-line" />
+        <span className="google-signin__divider-text">או</span>
+        <div className="google-signin__divider-line" />
       </div>
       <div ref={buttonRef} />
     </div>
@@ -48,15 +49,15 @@ function GoogleSignInButton({ onCredential }) {
 function Field({ label, type = "text", value, onChange, error, autoComplete }) {
   return (
     <div>
-      <label className="block text-xs font-semibold mb-1.5 text-[#6b5b8a]">{label}</label>
+      <label className="login-field-label">{label}</label>
       <input
         type={type}
         value={value}
         autoComplete={autoComplete}
         onChange={(e) => onChange(e.target.value)}
-        className="w-full rounded-xl px-3.5 py-3 text-sm border-[1.5px] border-[#ddd3f7] bg-[#faf8ff] text-[#1b1033] outline-none focus:border-[#7c3aed] focus:bg-white"
+        className="login-field-input"
       />
-      {error && <p className="mt-1 mb-0 text-xs text-[#e11d48]">{error}</p>}
+      {error && <p className="login-field-error">{error}</p>}
     </div>
   );
 }
@@ -118,44 +119,33 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[linear-gradient(180deg,#faf5ff,#fdf2f8)] flex items-center justify-center px-5 py-10">
-      <div className="w-full max-w-[400px]">
-        <div className="text-center mb-6">
-          <div className="inline-flex w-14 h-14 rounded-2xl items-center justify-center text-2xl mb-3 bg-[linear-gradient(140deg,#7c3aed,#c026d3)]">
-            💳
-          </div>
-          <p className="m-0 text-[26px] font-bold text-[#1b1033]">SubTrack</p>
-          <p className="mt-1 mb-0 text-sm text-[#8b7cae]">כל המנויים שלך, במקום אחד</p>
+    <div className="login-page">
+      <div className="login-page__container">
+        <div className="login-page__header">
+          <div className="login-page__logo">💳</div>
+          <p className="login-page__title">SubTrack</p>
+          <p className="login-page__subtitle">כל המנויים שלך, במקום אחד</p>
         </div>
 
-        <div
-          className="bg-white border border-[#ece7f7] rounded-[20px] p-6"
-          style={{ boxShadow: "0 16px 36px -28px rgba(27,16,51,.7)" }}
-        >
-          <div className="flex mb-5 rounded-xl p-1 bg-[#faf8ff] border border-[#ece7f7]">
+        <div className="login-card">
+          <div className="login-card__tabs">
             <button
               type="button"
               onClick={() => switchMode("login")}
-              className={`flex-1 rounded-lg py-2 text-sm font-semibold ${
-                mode === "login" ? "bg-white text-[#4c1d95] shadow-sm" : "text-[#8b7cae]"
-              }`}
-              style={mode === "login" ? { boxShadow: "0 4px 10px -4px rgba(27,16,51,.3)" } : undefined}
+              className={`login-card__tab ${mode === "login" ? "login-card__tab--active" : ""}`}
             >
               התחברות
             </button>
             <button
               type="button"
               onClick={() => switchMode("signup")}
-              className={`flex-1 rounded-lg py-2 text-sm font-semibold ${
-                mode === "signup" ? "bg-white text-[#4c1d95] shadow-sm" : "text-[#8b7cae]"
-              }`}
-              style={mode === "signup" ? { boxShadow: "0 4px 10px -4px rgba(27,16,51,.3)" } : undefined}
+              className={`login-card__tab ${mode === "signup" ? "login-card__tab--active" : ""}`}
             >
               הרשמה
             </button>
           </div>
 
-          <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+          <form onSubmit={handleSubmit} className="login-form">
             {mode === "signup" && (
               <Field label="שם (אופציונלי)" value={name} onChange={setName} autoComplete="name" />
             )}
@@ -177,34 +167,24 @@ export default function LoginPage() {
             />
 
             {mode === "login" && (
-              <label className="flex items-center gap-2 text-sm text-[#4c1d95] cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={remember}
-                  onChange={(e) => setRemember(e.target.checked)}
-                  className="w-4 h-4 rounded border-[1.5px] border-[#ddd3f7] accent-[#7c3aed]"
-                />
+              <label className="login-remember">
+                <input type="checkbox" checked={remember} onChange={(e) => setRemember(e.target.checked)} />
                 הישאר מחובר
               </label>
             )}
 
             {submitError && (
-              <div className="rounded-xl px-4 py-3 bg-[#fff1f2] border border-[#fecdd3]">
-                <p className="m-0 text-sm font-medium text-[#9f1239]">{submitError}</p>
+              <div className="login-error">
+                <p>{submitError}</p>
               </div>
             )}
 
-            <button
-              type="submit"
-              disabled={submitting}
-              className="rounded-xl py-3 text-sm font-semibold text-white disabled:opacity-60"
-              style={{ background: "linear-gradient(140deg,#7c3aed,#c026d3)" }}
-            >
+            <button type="submit" disabled={submitting} className="login-submit">
               {submitting ? "רגע..." : mode === "login" ? "התחבר" : "הירשם"}
             </button>
           </form>
 
-          <div className="mt-5">
+          <div className="google-signin">
             <GoogleSignInButton onCredential={handleGoogleCredential} />
           </div>
         </div>

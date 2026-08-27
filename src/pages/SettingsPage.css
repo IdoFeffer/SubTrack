@@ -1,0 +1,561 @@
+.settings-header__eyebrow {
+  margin: 0;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  color: var(--color-accent2);
+}
+
+.settings-header__title {
+  margin: 4px 0 0;
+  font-size: 30px;
+  font-weight: 700;
+  color: var(--color-ink);
+}
+
+.settings-body {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 22px;
+}
+
+@media (min-width: 1024px) {
+  .settings-body {
+    grid-template-columns: 1fr 330px;
+  }
+}
+
+.settings-col {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.settings-card {
+  background: #fff;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  box-shadow: var(--shadow-card);
+}
+
+.settings-card__title {
+  margin: 0 0 4px;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--color-ink);
+}
+
+.toggle-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.toggle-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 16px 0;
+  border-bottom: 1px solid var(--color-border-soft);
+}
+
+.toggle-row:last-child {
+  border-bottom: none;
+}
+
+.toggle-row__title {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-ink);
+}
+
+.toggle-row__desc {
+  margin: 2px 0 0;
+  font-size: 12px;
+  color: var(--color-muted);
+}
+
+.toggle-switch {
+  position: relative;
+  width: 46px;
+  height: 26px;
+  border-radius: 999px;
+  flex-shrink: 0;
+  border: none;
+}
+
+.toggle-switch:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.toggle-switch__knob {
+  position: absolute;
+  top: 3px;
+  width: 20px;
+  height: 20px;
+  border-radius: 999px;
+  background: #fff;
+  box-shadow: 0 2px 6px rgba(27, 16, 51, 0.25);
+}
+
+.general-card {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.general-card__grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 14px;
+}
+
+@media (min-width: 640px) {
+  .general-card__grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.settings-field-label {
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+  margin-bottom: 6px;
+  color: var(--color-muted2);
+}
+
+.settings-select {
+  width: 100%;
+  border-radius: 12px;
+  padding: 12px 14px;
+  font-size: 14px;
+  border: 1.5px solid var(--color-border-strong);
+  background: var(--color-bg-input);
+  color: var(--color-ink);
+  outline: none;
+}
+
+.settings-select:focus {
+  border-color: var(--color-primary);
+  background: #fff;
+}
+
+.category-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.category-chips__chip {
+  border-radius: 999px;
+  padding: 6px 14px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.category-chips__add {
+  border-radius: 999px;
+  padding: 6px 14px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-primary);
+  background: var(--color-primary-tint);
+  border: 1px dashed #c4b5fd;
+}
+
+.settings-save-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.settings-save-btn {
+  border-radius: 12px;
+  padding: 12px 20px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #fff;
+  border: none;
+  background: var(--gradient-primary);
+}
+
+.settings-save-btn:disabled {
+  opacity: 0.5;
+}
+
+.settings-save-success {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-green);
+}
+
+.settings-save-error {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--color-danger);
+}
+
+.account-card {
+  background: #fff;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.account-card__profile {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.account-card__avatar {
+  width: 46px;
+  height: 46px;
+  border-radius: 999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: 17px;
+  font-weight: 700;
+  background: var(--gradient-avatar);
+}
+
+.account-card__name {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-ink);
+}
+
+.account-card__email {
+  margin: 2px 0 0;
+  font-size: 12px;
+  color: var(--color-muted);
+}
+
+.account-card__logout {
+  border-radius: 12px;
+  padding: 10px 0;
+  text-align: center;
+  font-size: 14px;
+  font-weight: 600;
+  border: 1.5px solid var(--color-border-strong);
+  color: var(--color-primary-dark);
+  background: #fff;
+}
+
+.gmail-card {
+  border-radius: var(--radius-lg);
+  padding: 20px;
+  border: 1px solid var(--color-border-strong);
+  background: var(--gradient-purple);
+}
+
+.gmail-card__title {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--color-primary-dark);
+}
+
+.gmail-card__text {
+  margin: 10px 0 0;
+  font-size: 13px;
+  color: #5b4b7a;
+}
+
+.gmail-card__message {
+  margin: 10px 0 0;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.gmail-card__message--success {
+  color: var(--color-green);
+}
+
+.gmail-card__message--error {
+  color: var(--color-danger);
+}
+
+.gmail-card__actions {
+  margin-top: 14px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.gmail-card__status {
+  border-radius: var(--radius-sm);
+  padding: 10px 14px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-green);
+  background: #fff;
+  border: 1px solid #a7f3d0;
+}
+
+.gmail-card__scan-btn {
+  border-radius: var(--radius-sm);
+  padding: 10px 14px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #fff;
+  border: none;
+  background: var(--gradient-primary);
+}
+
+.gmail-card__scan-btn:disabled {
+  opacity: 0.6;
+}
+
+.gmail-card__disconnect-btn {
+  border-radius: var(--radius-sm);
+  padding: 10px 14px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-primary);
+  background: #fff;
+  border: 1px solid var(--color-border-strong);
+}
+
+.gmail-card__disconnect-btn:disabled {
+  opacity: 0.6;
+}
+
+.gmail-card__connect-btn {
+  margin-top: 14px;
+  display: inline-block;
+  border-radius: var(--radius-sm);
+  padding: 10px 14px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #fff;
+  background: var(--color-primary);
+}
+
+.gmail-card__scan-error {
+  margin: 10px 0 0;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--color-danger);
+}
+
+.gmail-card__candidates {
+  margin-top: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.gmail-card__empty {
+  margin: 0;
+  font-size: 13px;
+  color: #5b4b7a;
+}
+
+.danger-card {
+  background: #fff;
+  border: 1px solid var(--color-danger-border);
+  border-radius: var(--radius-lg);
+  padding: 20px;
+}
+
+.danger-card__title {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--color-danger-dark);
+}
+
+.danger-card__text {
+  margin: 8px 0 0;
+  font-size: 13px;
+  color: var(--color-muted);
+}
+
+.danger-card__btn {
+  margin-top: 14px;
+  border-radius: var(--radius-sm);
+  padding: 10px 14px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-danger);
+  background: var(--color-danger-bg);
+  border: 1px solid var(--color-danger-border);
+}
+
+/* Confirm dialog */
+.confirm-dialog__scrim {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: rgba(27, 16, 51, 0.45);
+  animation: subtrack-scrim-in 150ms ease-out;
+}
+
+.confirm-dialog {
+  width: 380px;
+  max-width: 100%;
+  background: #fff;
+  border-radius: 22px;
+  padding: 24px;
+  box-shadow: var(--shadow-dialog);
+  animation: subtrack-dialog-in 180ms ease-out;
+}
+
+.confirm-dialog__title {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--color-ink);
+}
+
+.confirm-dialog__message {
+  margin: 8px 0 0;
+  font-size: 14px;
+  color: var(--color-muted2);
+}
+
+.confirm-dialog__error {
+  margin: 8px 0 0;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--color-danger);
+}
+
+.confirm-dialog__actions {
+  margin-top: 20px;
+  display: flex;
+  gap: 10px;
+}
+
+.confirm-dialog__confirm {
+  flex: 1;
+  border-radius: 13px;
+  padding: 12px 0;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 700;
+  border: none;
+  background: var(--color-danger);
+}
+
+.confirm-dialog__confirm:disabled {
+  opacity: 0.6;
+}
+
+.confirm-dialog__cancel {
+  border-radius: 13px;
+  padding: 12px 20px;
+  font-size: 14px;
+  font-weight: 600;
+  border: 1.5px solid var(--color-border-strong);
+  color: var(--color-primary-dark);
+  background: #fff;
+}
+
+/* Candidate card */
+.candidate-card {
+  border-radius: 12px;
+  border: 1px solid var(--color-border-strong);
+  background: #fff;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.candidate-card__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.candidate-card__name {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-ink);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.candidate-card__badge {
+  flex-shrink: 0;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--color-primary);
+  background: var(--color-primary-tint);
+  border-radius: 999px;
+  padding: 2px 8px;
+}
+
+.candidate-card__grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.candidate-card__input {
+  border-radius: 8px;
+  padding: 8px 10px;
+  font-size: 12px;
+  border: 1.5px solid var(--color-border-strong);
+  background: var(--color-bg-input);
+  color: var(--color-ink);
+  outline: none;
+}
+
+.candidate-card__input:focus {
+  border-color: var(--color-primary);
+  background: #fff;
+}
+
+.candidate-card__input--price {
+  text-align: right;
+}
+
+.candidate-card__actions {
+  display: flex;
+  gap: 8px;
+}
+
+.candidate-card__add {
+  flex: 1;
+  border-radius: 8px;
+  padding: 8px 0;
+  font-size: 12px;
+  font-weight: 600;
+  color: #fff;
+  border: none;
+  background: var(--gradient-primary);
+}
+
+.candidate-card__add:disabled {
+  opacity: 0.6;
+}
+
+.candidate-card__dismiss {
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-size: 12px;
+  font-weight: 600;
+  border: 1.5px solid var(--color-border-strong);
+  color: var(--color-primary-dark);
+  background: #fff;
+}

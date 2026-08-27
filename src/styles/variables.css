@@ -1,0 +1,46 @@
+:root {
+  --color-ink: #1b1033;
+  --color-primary: #7c3aed;
+  --color-primary-dark: #4c1d95;
+  --color-accent: #c026d3;
+  --color-accent2: #8b5cf6;
+  --color-muted: #8b7cae;
+  --color-muted2: #6b5b8a;
+  --color-muted3: #a99cc4;
+
+  --color-border: #ece7f7;
+  --color-border-soft: #f4f0fb;
+  --color-border-strong: #ddd3f7;
+  --color-bg-input: #faf8ff;
+  --color-bg-page: #faf5ff;
+  --color-bg-page2: #fdf2f8;
+  --color-primary-tint: #f3e8ff;
+
+  --color-danger: #e11d48;
+  --color-danger-dark: #9f1239;
+  --color-danger-bg: #fff1f2;
+  --color-danger-border: #fecdd3;
+
+  --color-teal: #0f766e;
+  --color-teal-bg: #e7f6f4;
+  --color-teal-border: #b9e6e0;
+  --color-green: #059669;
+
+  --gradient-primary: linear-gradient(140deg, #7c3aed, #c026d3);
+  --gradient-avatar: linear-gradient(140deg, #a855f7, #ec4899);
+  --gradient-page: linear-gradient(180deg, #faf5ff, #fdf2f8);
+  --gradient-danger: linear-gradient(140deg, #fff1f2, #ffe4e6);
+  --gradient-purple: linear-gradient(140deg, #f3e8ff, #fae8ff);
+  --gradient-bar: linear-gradient(180deg, #c026d3, #7c3aed);
+
+  --shadow-card: 0 16px 36px -28px rgba(27, 16, 51, 0.7);
+  --shadow-dialog: 0 40px 80px -30px rgba(27, 16, 51, 0.7);
+  --shadow-btn: 0 12px 24px -14px rgba(124, 58, 237, 0.9);
+
+  --radius-lg: 20px;
+  --radius-md: 13px;
+  --radius-sm: 10px;
+
+  --breakpoint-tablet: 640px;
+  --breakpoint-desktop: 1024px;
+}

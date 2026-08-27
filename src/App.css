@@ -1,0 +1,4 @@
+.app-loading {
+  min-height: 100vh;
+  background: var(--gradient-page);
+}

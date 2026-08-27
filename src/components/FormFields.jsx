@@ -1,26 +1,22 @@
 import { Upload, X } from "lucide-react";
 import { CATEGORY_OPTIONS, ICON_OPTIONS, categoryColor, fileToDataUrl } from "../lib/subscriptions";
+import "./FormFields.css";
 
 export default function FormFields({ form, setForm, errors }) {
   return (
     <>
       <div>
-        <label className="block text-xs font-semibold mb-2 text-[#6b5b8a]">תמונה</label>
-        <div className="flex items-center gap-2">
-          <div className="w-12 h-12 rounded-[13px] flex items-center justify-center text-lg overflow-hidden shrink-0 bg-[#faf8ff] border-2 border-[#ece7f7]">
-            {form.image ? (
-              <img src={form.image} alt="" className="w-full h-full object-cover" />
-            ) : (
-              form.icon
-            )}
+        <label className="field-label">תמונה</label>
+        <div className="field-row">
+          <div className="field-image-preview">
+            {form.image ? <img src={form.image} alt="" /> : form.icon}
           </div>
-          <label className="flex items-center gap-1.5 text-sm rounded-xl px-3.5 py-2.5 cursor-pointer border-[1.5px] border-[#ddd3f7] text-[#4c1d95] bg-white">
+          <label className="field-upload-label">
             <Upload size={14} />
             העלה תמונה
             <input
               type="file"
               accept="image/*"
-              className="hidden"
               onChange={async (e) => {
                 const file = e.target.files?.[0];
                 if (!file) return;
@@ -35,7 +31,7 @@ export default function FormFields({ form, setForm, errors }) {
               type="button"
               onClick={() => setForm({ ...form, image: null })}
               aria-label="הסר תמונה"
-              className="w-9 h-9 rounded-full flex items-center justify-center text-[#e11d48]"
+              className="field-remove-image"
             >
               <X size={16} />
             </button>
@@ -44,8 +40,8 @@ export default function FormFields({ form, setForm, errors }) {
       </div>
 
       <div>
-        <label className="block text-xs font-semibold mb-2 text-[#6b5b8a]">אייקון</label>
-        <div className="flex flex-wrap gap-1.5">
+        <label className="field-label">אייקון</label>
+        <div className="field-chip-group">
           {ICON_OPTIONS.map((icon) => {
             const selected = form.icon === icon;
             return (
@@ -55,9 +51,7 @@ export default function FormFields({ form, setForm, errors }) {
                 onClick={() => setForm({ ...form, icon })}
                 aria-pressed={selected}
                 aria-label={`בחר אייקון ${icon}`}
-                className={`w-[42px] h-[42px] rounded-[13px] flex items-center justify-center text-lg border-2 ${
-                  selected ? "bg-[#f3e8ff] border-[#7c3aed]" : "bg-[#faf8ff] border-[#ece7f7]"
-                }`}
+                className={`icon-chip ${selected ? "icon-chip--selected" : ""}`}
               >
                 {icon}
               </button>
@@ -67,8 +61,8 @@ export default function FormFields({ form, setForm, errors }) {
       </div>
 
       <div>
-        <label className="block text-xs font-semibold mb-2 text-[#6b5b8a]">קטגוריה</label>
-        <div className="flex flex-wrap gap-1.5">
+        <label className="field-label">קטגוריה</label>
+        <div className="field-chip-group">
           {CATEGORY_OPTIONS.map((cat) => {
             const c = categoryColor(cat);
             const selected = form.category === cat;
@@ -78,11 +72,11 @@ export default function FormFields({ form, setForm, errors }) {
                 type="button"
                 onClick={() => setForm({ ...form, category: cat })}
                 aria-pressed={selected}
-                className="text-xs font-semibold rounded-full px-3 py-1.5"
+                className="category-chip"
                 style={{
                   color: c.color,
                   background: c.tint,
-                  border: selected ? `1.5px solid ${c.color}` : "1.5px solid transparent",
+                  borderColor: selected ? c.color : "transparent",
                 }}
               >
                 {cat}
@@ -122,18 +116,16 @@ export default function FormFields({ form, setForm, errors }) {
 function Field({ label, placeholder, type = "text", value, onChange, error, dir }) {
   return (
     <div>
-      <label className="block text-xs font-semibold mb-1.5 text-[#6b5b8a]">{label}</label>
+      <label className="field-label">{label}</label>
       <input
         type={type}
         placeholder={placeholder}
         value={value}
         dir={dir}
         onChange={(e) => onChange(e.target.value)}
-        className={`w-full rounded-xl px-3.5 py-3 text-sm border-[1.5px] border-[#ddd3f7] bg-[#faf8ff] text-[#1b1033] placeholder:text-[#a99cc4] outline-none focus:border-[#7c3aed] focus:bg-white ${
-          dir === "ltr" ? "text-right" : ""
-        }`}
+        className={`field-input ${dir === "ltr" ? "field-input--ltr" : ""}`}
       />
-      {error && <p className="mt-1 mb-0 text-xs text-[#e11d48]">{error}</p>}
+      {error && <p className="field-error">{error}</p>}
     </div>
   );
 }

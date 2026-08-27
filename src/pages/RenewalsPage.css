@@ -1,0 +1,281 @@
+.renewals-header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.renewals-header__eyebrow {
+  margin: 0;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  color: var(--color-accent2);
+}
+
+.renewals-header__title {
+  margin: 4px 0 0;
+  font-size: 30px;
+  font-weight: 700;
+  color: var(--color-ink);
+}
+
+.renewals-nav {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.renewals-nav__btn {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: #fff;
+  border: 1.5px solid var(--color-border-strong);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-primary-dark);
+}
+
+@media (min-width: 1024px) {
+  .renewals-nav__btn {
+    width: 38px;
+    height: 38px;
+  }
+}
+
+.renewals-nav__label {
+  padding: 10px 16px;
+  border-radius: 12px;
+  background: #fff;
+  border: 1.5px solid var(--color-border-strong);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-primary-dark);
+}
+
+.renewals-body {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 22px;
+}
+
+@media (min-width: 1024px) {
+  .renewals-body {
+    grid-template-columns: 1fr 330px;
+  }
+}
+
+.renewals-calendar {
+  background: #fff;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  overflow-x: auto;
+  box-shadow: var(--shadow-card);
+}
+
+.renewals-calendar__grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 8px;
+  min-width: 320px;
+}
+
+.renewals-calendar__weekday {
+  margin: 0;
+  text-align: center;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-muted);
+}
+
+.renewals-calendar__cell {
+  border-radius: 12px;
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-height: 64px;
+}
+
+.renewals-calendar__day {
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.renewals-calendar__chip {
+  border-radius: 8px;
+  padding: 4px 6px;
+  font-size: 11px;
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.renewals-calendar__more {
+  font-size: 10px;
+  font-weight: 600;
+  padding: 0 6px;
+}
+
+.renewals-side {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.upcoming-card {
+  background: #fff;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: 20px;
+}
+
+.upcoming-card__title {
+  margin: 0 0 14px;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--color-ink);
+}
+
+.upcoming-card__list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.upcoming-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.upcoming-row__main {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.upcoming-row__avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 17px;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.upcoming-row__avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.upcoming-row__name {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-ink);
+}
+
+.upcoming-row__date {
+  margin: 2px 0 0;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.upcoming-row__price {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--color-ink);
+}
+
+.urgent-card {
+  border-radius: var(--radius-lg);
+  padding: 20px;
+  border: 1px solid var(--color-danger-border);
+  background: var(--gradient-danger);
+}
+
+.urgent-card__head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.urgent-card__title {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--color-danger-dark);
+}
+
+.urgent-card__text {
+  margin: 10px 0 0;
+  font-size: 13px;
+  color: var(--color-danger-dark);
+}
+
+.urgent-card__actions {
+  margin-top: 14px;
+  display: flex;
+  gap: 8px;
+}
+
+.urgent-card__cancel {
+  border-radius: var(--radius-sm);
+  padding: 10px 14px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #fff;
+  background: var(--color-danger);
+  border: none;
+}
+
+.urgent-card__remind {
+  border-radius: var(--radius-sm);
+  padding: 10px 14px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-danger-dark);
+  background: #fff;
+  border: 1px solid var(--color-danger-border);
+}
+
+.legend-card {
+  background: #fff;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: 20px;
+}
+
+.legend-card__title {
+  margin: 0 0 10px;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--color-ink);
+}
+
+.legend-card__chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.legend-chip {
+  border-radius: 999px;
+  padding: 6px 12px;
+  font-size: 12px;
+  font-weight: 600;
+}

@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { BarChart3, Calendar, LayoutGrid, Settings } from "lucide-react";
+import "./Sidebar.css";
 
 const NAV_ITEMS = [
   { key: "subscriptions", label: "המנויים שלי", icon: LayoutGrid, to: "/" },
@@ -13,28 +14,24 @@ export default function Sidebar({
   bottomTitle,
   bottomValue,
   bottomValueColor = "#fff",
-  bottomValueSize = "text-[22px]",
+  bottomValueSize = "22px",
   bottomNote,
 }) {
   return (
-    <div className="flex flex-col gap-[26px] px-5 py-[26px] bg-[linear-gradient(180deg,#2a1258,#1b1033)]">
-      <div className="flex items-center gap-2.5">
-        <div className="w-[34px] h-[34px] rounded-[11px] flex items-center justify-center text-white font-bold text-[15px] bg-[linear-gradient(140deg,#a855f7,#ec4899)]">
-          S
-        </div>
-        <p className="m-0 text-lg font-bold text-white">SubTrack</p>
+    <div className="sidebar">
+      <div className="sidebar__brand">
+        <div className="sidebar__logo">S</div>
+        <p className="sidebar__title">SubTrack</p>
       </div>
 
-      <div className="flex flex-col gap-1">
+      <div className="sidebar__nav">
         {NAV_ITEMS.map(({ key, label, icon: Icon, to }) => {
           const active = key === activePage;
           return (
             <Link
               key={key}
               to={to}
-              className={`flex items-center gap-2.5 px-3.5 py-[11px] rounded-xl text-sm ${
-                active ? "bg-[rgba(168,85,247,.22)] text-white font-semibold" : "text-[#b6a8d6]"
-              }`}
+              className={`sidebar__link ${active ? "sidebar__link--active" : ""}`}
             >
               <Icon size={17} />
               {label}
@@ -43,16 +40,12 @@ export default function Sidebar({
         })}
       </div>
 
-      <div className="mt-auto rounded-2xl p-4 bg-[rgba(255,255,255,.07)]">
-        <p className="m-0 text-xs text-[#c9bce6]">{bottomTitle}</p>
-        <p
-          className={`mt-1.5 mb-0 font-bold ${bottomValueSize}`}
-          style={{ color: bottomValueColor }}
-          dir="ltr"
-        >
-          <span style={{ textAlign: "right", display: "block" }}>{bottomValue}</span>
+      <div className="sidebar__bottom">
+        <p className="sidebar__bottom-title">{bottomTitle}</p>
+        <p className="sidebar__bottom-value" style={{ color: bottomValueColor, fontSize: bottomValueSize }} dir="ltr">
+          <span className="sidebar__bottom-value-inner">{bottomValue}</span>
         </p>
-        {bottomNote && <p className="mt-1.5 mb-0 text-[11px] text-[#9c8dc0]">{bottomNote}</p>}
+        {bottomNote && <p className="sidebar__bottom-note">{bottomNote}</p>}
       </div>
     </div>
   );

@@ -1,9 +1,43 @@
-@import "tailwindcss";
+@import "./styles/variables.css";
 
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
 body {
   margin: 0;
+  padding: 0;
+}
+
+body {
   font-family: "Heebo", "Noto Sans Hebrew", system-ui, sans-serif;
-  background: #faf5ff;
+  background: var(--color-bg-page);
+  color: var(--color-ink);
+  -webkit-font-smoothing: antialiased;
+}
+
+button {
+  font-family: inherit;
+  cursor: pointer;
+}
+
+input,
+select,
+textarea {
+  font-family: inherit;
+}
+
+img {
+  max-width: 100%;
+  display: block;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
 }
 
 @keyframes subtrack-scrim-in {
@@ -23,5 +57,15 @@ body {
   to {
     opacity: 1;
     transform: scale(1);
+  }
+}
+
+@keyframes subtrack-pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
   }
 }

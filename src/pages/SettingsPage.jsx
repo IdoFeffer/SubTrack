@@ -12,6 +12,7 @@ import {
   updateSettings,
 } from "../lib/api";
 import { CATEGORY_OPTIONS, categoryColor } from "../lib/subscriptions";
+import "./SettingsPage.css";
 
 const CURRENCY_OPTIONS = [
   { value: "₪", label: "שקל (₪)" },
@@ -28,35 +29,16 @@ const TOGGLE_META = [
 function ConfirmDialog({ open, title, message, confirmLabel, confirming, error, onConfirm, onCancel }) {
   if (!open) return null;
   return (
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-6"
-      style={{ background: "rgba(27,16,51,.45)", animation: "subtrack-scrim-in 150ms ease-out" }}
-      onClick={onCancel}
-    >
-      <div
-        role="dialog"
-        aria-modal="true"
-        className="w-[380px] max-w-full bg-white rounded-[22px] p-6"
-        style={{ boxShadow: "0 40px 80px -30px rgba(27,16,51,.7)", animation: "subtrack-dialog-in 180ms ease-out" }}
-        onClick={(e) => e.stopPropagation()}
-      >
-        <p className="m-0 text-lg font-bold text-[#1b1033]">{title}</p>
-        <p className="mt-2 mb-0 text-sm text-[#6b5b8a]">{message}</p>
-        {error && <p className="mt-2 mb-0 text-sm font-medium text-[#e11d48]">{error}</p>}
-        <div className="mt-5 flex gap-2.5">
-          <button
-            type="button"
-            onClick={onConfirm}
-            disabled={confirming}
-            className="flex-1 rounded-[13px] py-3 text-white text-sm font-bold bg-[#e11d48] disabled:opacity-60"
-          >
+    <div className="confirm-dialog__scrim" onClick={onCancel}>
+      <div role="dialog" aria-modal="true" className="confirm-dialog" onClick={(e) => e.stopPropagation()}>
+        <p className="confirm-dialog__title">{title}</p>
+        <p className="confirm-dialog__message">{message}</p>
+        {error && <p className="confirm-dialog__error">{error}</p>}
+        <div className="confirm-dialog__actions">
+          <button type="button" onClick={onConfirm} disabled={confirming} className="confirm-dialog__confirm">
             {confirming ? "מוחק..." : confirmLabel}
           </button>
-          <button
-            type="button"
-            onClick={onCancel}
-            className="rounded-[13px] px-5 py-3 text-sm font-semibold border-[1.5px] border-[#ddd3f7] text-[#4c1d95]"
-          >
+          <button type="button" onClick={onCancel} className="confirm-dialog__cancel">
             ביטול
           </button>
         </div>
@@ -72,21 +54,17 @@ function CandidateCard({ candidate, adding, onAdd, onDismiss }) {
   const [category, setCategory] = useState("");
 
   return (
-    <div className="rounded-xl border border-[#ddd3f7] bg-white p-3.5 flex flex-col gap-2.5">
-      <div className="flex items-center justify-between gap-2">
-        <p className="m-0 text-sm font-semibold text-[#1b1033] truncate">{candidate.name}</p>
-        {candidate.recurring && (
-          <span className="shrink-0 text-[11px] font-semibold text-[#7c3aed] bg-[#f3e8ff] rounded-full px-2 py-0.5">
-            נמצא {candidate.occurrences} פעמים
-          </span>
-        )}
+    <div className="candidate-card">
+      <div className="candidate-card__head">
+        <p className="candidate-card__name">{candidate.name}</p>
+        {candidate.recurring && <span className="candidate-card__badge">נמצא {candidate.occurrences} פעמים</span>}
       </div>
-      <div className="grid grid-cols-2 gap-2">
+      <div className="candidate-card__grid">
         <input
           value={name}
           onChange={(e) => setName(e.target.value)}
           placeholder="שם המנוי"
-          className="rounded-lg px-2.5 py-2 text-xs border-[1.5px] border-[#ddd3f7] bg-[#faf8ff] text-[#1b1033] outline-none focus:border-[#7c3aed] focus:bg-white"
+          className="candidate-card__input"
         />
         <input
           type="number"
@@ -94,20 +72,16 @@ function CandidateCard({ candidate, adding, onAdd, onDismiss }) {
           onChange={(e) => setPrice(e.target.value)}
           placeholder="מחיר"
           dir="ltr"
-          className="rounded-lg px-2.5 py-2 text-xs border-[1.5px] border-[#ddd3f7] bg-[#faf8ff] text-[#1b1033] outline-none focus:border-[#7c3aed] focus:bg-white text-right"
+          className="candidate-card__input candidate-card__input--price"
         />
         <input
           type="date"
           value={date}
           onChange={(e) => setDate(e.target.value)}
           dir="ltr"
-          className="rounded-lg px-2.5 py-2 text-xs border-[1.5px] border-[#ddd3f7] bg-[#faf8ff] text-[#1b1033] outline-none focus:border-[#7c3aed] focus:bg-white"
+          className="candidate-card__input"
         />
-        <select
-          value={category}
-          onChange={(e) => setCategory(e.target.value)}
-          className="rounded-lg px-2.5 py-2 text-xs border-[1.5px] border-[#ddd3f7] bg-[#faf8ff] text-[#1b1033] outline-none focus:border-[#7c3aed] focus:bg-white"
-        >
+        <select value={category} onChange={(e) => setCategory(e.target.value)} className="candidate-card__input">
           <option value="">קטגוריה</option>
           {CATEGORY_OPTIONS.map((c) => (
             <option key={c} value={c}>
@@ -116,21 +90,16 @@ function CandidateCard({ candidate, adding, onAdd, onDismiss }) {
           ))}
         </select>
       </div>
-      <div className="flex gap-2">
+      <div className="candidate-card__actions">
         <button
           type="button"
           onClick={() => onAdd({ name, price, date, category })}
           disabled={adding}
-          className="flex-1 rounded-lg py-2 text-xs font-semibold text-white disabled:opacity-60"
-          style={{ background: "linear-gradient(140deg,#7c3aed,#c026d3)" }}
+          className="candidate-card__add"
         >
           {adding ? "מוסיף..." : "הוסף מנוי"}
         </button>
-        <button
-          type="button"
-          onClick={onDismiss}
-          className="rounded-lg px-3 py-2 text-xs font-semibold border-[1.5px] border-[#ddd3f7] text-[#4c1d95]"
-        >
+        <button type="button" onClick={onDismiss} className="candidate-card__dismiss">
           התעלם
         </button>
       </div>
@@ -140,19 +109,8 @@ function CandidateCard({ candidate, adding, onAdd, onDismiss }) {
 
 function Toggle({ on, disabled, onClick }) {
   return (
-    <button
-      type="button"
-      role="switch"
-      aria-checked={on}
-      disabled={disabled}
-      onClick={onClick}
-      className={`relative w-[46px] h-[26px] rounded-full shrink-0 ${disabled ? "opacity-50 cursor-not-allowed" : ""}`}
-      style={{ background: on ? "linear-gradient(140deg,#7c3aed,#c026d3)" : "#e7e1f4" }}
-    >
-      <span
-        className="absolute top-[3px] w-5 h-5 rounded-full bg-white"
-        style={{ boxShadow: "0 2px 6px rgba(27,16,51,.25)", [on ? "left" : "right"]: "3px" }}
-      />
+    <button type="button" role="switch" aria-checked={on} disabled={disabled} onClick={onClick} className="toggle-switch" style={{ background: on ? "var(--gradient-primary)" : "#e7e1f4" }}>
+      <span className="toggle-switch__knob" style={{ [on ? "left" : "right"]: "3px" }} />
     </button>
   );
 }
@@ -306,28 +264,22 @@ export default function SettingsPage({ subs, onSubscriptionAdded }) {
   }
 
   return (
-    <PageShell activePage="settings" bottomCard={{ bottomTitle: "גרסה", bottomValue: "SubTrack 0.4", bottomValueSize: "text-[16px]" }}>
+    <PageShell activePage="settings" bottomCard={{ bottomTitle: "גרסה", bottomValue: "SubTrack 0.4", bottomValueSize: "16px" }}>
       <div>
-        <p className="m-0 text-xs font-semibold tracking-[.08em] text-[#8b5cf6]">חשבון והתראות</p>
-        <p className="mt-1 mb-0 text-[30px] font-bold text-[#1b1033]">הגדרות</p>
+        <p className="settings-header__eyebrow">חשבון והתראות</p>
+        <p className="settings-header__title">הגדרות</p>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-[1fr_330px] gap-[22px]">
-        <div className="flex flex-col gap-4">
-          <div
-            className="bg-white border border-[#ece7f7] rounded-[20px] p-6"
-            style={{ boxShadow: "0 16px 36px -28px rgba(27,16,51,.7)" }}
-          >
-            <p className="m-0 mb-1 text-[15px] font-bold text-[#1b1033]">התראות</p>
-            <div className="flex flex-col">
+      <div className="settings-body">
+        <div className="settings-col">
+          <div className="settings-card">
+            <p className="settings-card__title">התראות</p>
+            <div className="toggle-list">
               {TOGGLE_META.map((t) => (
-                <div
-                  key={t.key}
-                  className="flex items-center justify-between gap-4 py-4 border-b border-[#f4f0fb] last:border-b-0"
-                >
+                <div key={t.key} className="toggle-row">
                   <div>
-                    <p className="m-0 text-sm font-semibold text-[#1b1033]">{t.title}</p>
-                    <p className="mt-0.5 mb-0 text-xs text-[#8b7cae]">{t.desc}</p>
+                    <p className="toggle-row__title">{t.title}</p>
+                    <p className="toggle-row__desc">{t.desc}</p>
                   </div>
                   <Toggle
                     on={t.disabled ? false : Boolean(draft?.[t.key])}
@@ -339,16 +291,16 @@ export default function SettingsPage({ subs, onSubscriptionAdded }) {
             </div>
           </div>
 
-          <div className="bg-white border border-[#ece7f7] rounded-[20px] p-6 flex flex-col gap-4">
-            <p className="m-0 text-[15px] font-bold text-[#1b1033]">כללי</p>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+          <div className="settings-card general-card">
+            <p className="settings-card__title">כללי</p>
+            <div className="general-card__grid">
               <div>
-                <label className="block text-xs font-semibold mb-1.5 text-[#6b5b8a]">מטבע</label>
+                <label className="settings-field-label">מטבע</label>
                 <select
                   value={draft?.currency ?? "₪"}
                   disabled={!draft}
                   onChange={(e) => setDraftField("currency", e.target.value)}
-                  className="w-full rounded-xl px-3.5 py-3 text-sm border-[1.5px] border-[#ddd3f7] bg-[#faf8ff] text-[#1b1033] outline-none focus:border-[#7c3aed] focus:bg-white"
+                  className="settings-select"
                 >
                   {CURRENCY_OPTIONS.map((c) => (
                     <option key={c.value} value={c.value}>
@@ -358,12 +310,12 @@ export default function SettingsPage({ subs, onSubscriptionAdded }) {
                 </select>
               </div>
               <div>
-                <label className="block text-xs font-semibold mb-1.5 text-[#6b5b8a]">יום תחילת חודש</label>
+                <label className="settings-field-label">יום תחילת חודש</label>
                 <select
                   value={draft?.monthStartDay ?? 1}
                   disabled={!draft}
                   onChange={(e) => setDraftField("monthStartDay", Number(e.target.value))}
-                  className="w-full rounded-xl px-3.5 py-3 text-sm border-[1.5px] border-[#ddd3f7] bg-[#faf8ff] text-[#1b1033] outline-none focus:border-[#7c3aed] focus:bg-white"
+                  className="settings-select"
                 >
                   {Array.from({ length: 28 }, (_, i) => i + 1).map((d) => (
                     <option key={d} value={d}>
@@ -374,112 +326,72 @@ export default function SettingsPage({ subs, onSubscriptionAdded }) {
               </div>
             </div>
             <div>
-              <label className="block text-xs font-semibold mb-2 text-[#6b5b8a]">קטגוריות</label>
-              <div className="flex flex-wrap gap-2">
+              <label className="settings-field-label">קטגוריות</label>
+              <div className="category-chips">
                 {(uniqueCategories.length ? uniqueCategories : CATEGORY_OPTIONS.map((c) => ({ category: c, ...categoryColor(c) }))).map(
                   (c) => (
-                    <span
-                      key={c.category}
-                      className="rounded-full px-3.5 py-1.5 text-xs font-semibold"
-                      style={{ color: c.color, background: c.tint }}
-                    >
+                    <span key={c.category} className="category-chips__chip" style={{ color: c.color, background: c.tint }}>
                       {c.category || "אחר"}
                     </span>
                   )
                 )}
-                <span className="rounded-full px-3.5 py-1.5 text-xs font-semibold text-[#7c3aed] bg-[#f3e8ff] border border-dashed border-[#c4b5fd]">
-                  + קטגוריה
-                </span>
+                <span className="category-chips__add">+ קטגוריה</span>
               </div>
             </div>
           </div>
 
-          <div className="flex items-center gap-3">
-            <button
-              type="button"
-              onClick={handleSave}
-              disabled={!isDirty || saving}
-              className="rounded-xl px-5 py-3 text-sm font-semibold text-white disabled:opacity-50"
-              style={{ background: "linear-gradient(140deg,#7c3aed,#c026d3)" }}
-            >
+          <div className="settings-save-row">
+            <button type="button" onClick={handleSave} disabled={!isDirty || saving} className="settings-save-btn">
               {saving ? "שומר..." : "שמור הגדרות"}
             </button>
-            {justSaved && <span className="text-sm font-semibold text-[#059669]">נשמר ✓</span>}
-            {saveError && <span className="text-sm font-medium text-[#e11d48]">{saveError}</span>}
+            {justSaved && <span className="settings-save-success">נשמר ✓</span>}
+            {saveError && <span className="settings-save-error">{saveError}</span>}
           </div>
         </div>
 
-        <div className="flex flex-col gap-4">
-          <div className="bg-white border border-[#ece7f7] rounded-[20px] p-5 flex flex-col gap-3.5">
-            <p className="m-0 text-[15px] font-bold text-[#1b1033]">חשבון</p>
-            <div className="flex items-center gap-3">
-              <div className="w-[46px] h-[46px] rounded-full flex items-center justify-center text-white text-[17px] font-bold bg-[linear-gradient(140deg,#a855f7,#ec4899)]">
-                {initial}
-              </div>
+        <div className="settings-col">
+          <div className="account-card">
+            <p className="settings-card__title">חשבון</p>
+            <div className="account-card__profile">
+              <div className="account-card__avatar">{initial}</div>
               <div>
-                <p className="m-0 text-sm font-semibold text-[#1b1033]">{user?.name || "המשתמש שלי"}</p>
-                <p className="mt-0.5 mb-0 text-xs text-[#8b7cae]" dir="ltr">
+                <p className="account-card__name">{user?.name || "המשתמש שלי"}</p>
+                <p className="account-card__email" dir="ltr">
                   {user?.email}
                 </p>
               </div>
             </div>
-            <button
-              type="button"
-              onClick={logout}
-              className="rounded-xl py-2.5 text-center text-sm font-semibold border-[1.5px] border-[#ddd3f7] text-[#4c1d95]"
-            >
+            <button type="button" onClick={logout} className="account-card__logout">
               התנתקות
             </button>
           </div>
 
-          <div
-            className="rounded-[20px] p-5 border border-[#ddd3f7]"
-            style={{ background: "linear-gradient(140deg,#f3e8ff,#fae8ff)" }}
-          >
-            <p className="m-0 text-[15px] font-bold text-[#4c1d95]">ייבוא מנויים ממייל</p>
-            <p className="mt-2.5 mb-0 text-[13px] text-[#5b4b7a]">
-              נסרוק את תיבת ה-Gmail שלך לחיפוש חיובים חוזרים ונציע להוסיף אותם כמנויים.
-            </p>
+          <div className="gmail-card">
+            <p className="gmail-card__title">ייבוא מנויים ממייל</p>
+            <p className="gmail-card__text">נסרוק את תיבת ה-Gmail שלך לחיפוש חיובים חוזרים ונציע להוסיף אותם כמנויים.</p>
             {gmailMessage && (
-              <p
-                className={`mt-2.5 mb-0 text-[13px] font-semibold ${
-                  gmailMessage.type === "error" ? "text-[#e11d48]" : "text-[#059669]"
-                }`}
-              >
+              <p className={`gmail-card__message ${gmailMessage.type === "error" ? "gmail-card__message--error" : "gmail-card__message--success"}`}>
                 {gmailMessage.text}
               </p>
             )}
             {gmailStatus?.connected ? (
               <>
-                <div className="mt-3.5 flex items-center gap-2.5 flex-wrap">
-                  <span className="rounded-[10px] px-3.5 py-2.5 text-[13px] font-semibold text-[#059669] bg-white border border-[#a7f3d0]">
-                    מחובר ל-Gmail ✓
-                  </span>
-                  <button
-                    type="button"
-                    onClick={handleScan}
-                    disabled={scanning}
-                    className="rounded-[10px] px-3.5 py-2.5 text-[13px] font-semibold text-white disabled:opacity-60"
-                    style={{ background: "linear-gradient(140deg,#7c3aed,#c026d3)" }}
-                  >
+                <div className="gmail-card__actions">
+                  <span className="gmail-card__status">מחובר ל-Gmail ✓</span>
+                  <button type="button" onClick={handleScan} disabled={scanning} className="gmail-card__scan-btn">
                     {scanning ? "סורק..." : "סרוק עכשיו"}
                   </button>
-                  <button
-                    type="button"
-                    onClick={handleDisconnectGmail}
-                    disabled={disconnecting}
-                    className="rounded-[10px] px-3.5 py-2.5 text-[13px] font-semibold text-[#7c3aed] bg-white border border-[#ddd3f7] disabled:opacity-60"
-                  >
+                  <button type="button" onClick={handleDisconnectGmail} disabled={disconnecting} className="gmail-card__disconnect-btn">
                     {disconnecting ? "מנתק..." : "נתק"}
                   </button>
                 </div>
 
-                {scanError && <p className="mt-2.5 mb-0 text-[13px] font-medium text-[#e11d48]">{scanError}</p>}
+                {scanError && <p className="gmail-card__scan-error">{scanError}</p>}
 
                 {candidates && (
-                  <div className="mt-3.5 flex flex-col gap-2.5">
+                  <div className="gmail-card__candidates">
                     {candidates.length === 0 ? (
-                      <p className="m-0 text-[13px] text-[#5b4b7a]">לא נמצאו חיובים חדשים בתיבה שלך.</p>
+                      <p className="gmail-card__empty">לא נמצאו חיובים חדשים בתיבה שלך.</p>
                     ) : (
                       candidates.map((candidate) => (
                         <CandidateCard
@@ -495,23 +407,16 @@ export default function SettingsPage({ subs, onSubscriptionAdded }) {
                 )}
               </>
             ) : (
-              <a
-                href={gmailConnectUrl()}
-                className="mt-3.5 inline-block rounded-[10px] px-3.5 py-2.5 text-[13px] font-semibold text-white bg-[#7c3aed]"
-              >
+              <a href={gmailConnectUrl()} className="gmail-card__connect-btn">
                 התחבר ל-Gmail
               </a>
             )}
           </div>
 
-          <div className="bg-white border border-[#fecdd3] rounded-[20px] p-5">
-            <p className="m-0 text-[15px] font-bold text-[#9f1239]">אזור מסוכן</p>
-            <p className="mt-2 mb-0 text-[13px] text-[#8b7cae]">מחיקת כל המנויים וההיסטוריה. אין דרך חזרה.</p>
-            <button
-              type="button"
-              onClick={() => setDeleteConfirmOpen(true)}
-              className="mt-3.5 rounded-[10px] px-3.5 py-2.5 text-[13px] font-semibold text-[#e11d48] bg-[#fff1f2] border border-[#fecdd3]"
-            >
+          <div className="danger-card">
+            <p className="danger-card__title">אזור מסוכן</p>
+            <p className="danger-card__text">מחיקת כל המנויים וההיסטוריה. אין דרך חזרה.</p>
+            <button type="button" onClick={() => setDeleteConfirmOpen(true)} className="danger-card__btn">
               מחק את החשבון
             </button>
           </div>
